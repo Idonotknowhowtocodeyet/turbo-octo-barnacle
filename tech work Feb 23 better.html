@@ -466,7 +466,7 @@
 
                 // Fetch game list
                 try {
-                    const res = await fetch('https://api.github.com/repos/sqsqs353-alt/the-mongle-thing/contents/');
+                    const res = await fetch('https://api.github.com/repos/Idonotknowhowtocodeyet/mongles-pull-games/contents/');
                     const data = await res.json();
                     gameData = Array.isArray(data) ? data.filter(f => f.name && f.name.endsWith('.html') && f.name !== 'index.html') : [];
                     renderGrid();
