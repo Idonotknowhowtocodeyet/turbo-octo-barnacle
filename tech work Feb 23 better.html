@@ -511,7 +511,7 @@
                 const safeName = (g.name || 'unknown.html');
                 card.innerHTML = `<div class="fav-area" onclick="toggleFav(event,'${safeName}')"><span class="fav-btn ${favs.includes(safeName)?'active':''}">❤</span></div>${safeName.replace('.html','').toUpperCase()}`;
                 card.onclick = () => {
-                    const url = `https://raw.githack.com/sqsqs353-alt/the-mongle-thing/main/${safeName}`;
+                    const url = `https://raw.githack.com/Idonotknowhowtocodeyet/mongles-pull-games/main/${safeName}`;
                     try { update(userRef, {activity: 'Playing '+safeName}); } catch(e){}
                     if(cfg.mode==='blank') {
                         activeGameWindow = window.open('about:blank');
