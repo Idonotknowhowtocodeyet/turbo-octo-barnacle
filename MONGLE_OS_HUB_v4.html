@@ -138,7 +138,142 @@ footer a:hover{color:var(--g);}
 @keyframes loadBar{0%{width:0%;margin-left:0;}50%{width:60%;margin-left:20%;}100%{width:0%;margin-left:100%;}}
 @media(max-width:900px){.apps-grid{grid-template-columns:repeat(2,1fr);}}
 @media(max-width:480px){.apps-grid{grid-template-columns:1fr;}.hdr-status{display:none;}}
+/* Minimizeable Cloak Toggle Box */
+#cloakToggleBox{
+  position:fixed;
+  top:60px;
+  left:14px;
+  z-index:600;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:10px 12px;
+  min-width:180px;
+  max-width:260px;
+  box-shadow:0 0 20px rgba(0,255,65,0.08);
+  transition:all 0.25s ease;
+}
+#cloakToggleBox.collapsed{
+  min-width:auto;
+  max-width:none;
+  padding:6px 10px;
+}
+#cloakToggleBox.collapsed .cloak-body{display:none;}
+.cloak-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  cursor:pointer;
+  user-select:none;
+}
+.cloak-header-lbl{
+  font-family:'VT323',monospace;
+  font-size:16px;
+  color:var(--g);
+  text-shadow:0 0 6px rgba(0,255,65,0.3);
+  letter-spacing:1px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.cloak-toggle-btn{
+  background:transparent;
+  border:1px solid var(--border);
+  color:var(--dim);
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px;
+  padding:2px 7px;
+  cursor:pointer;
+  border-radius:3px;
+  transition:all 0.15s;
+}
+.cloak-toggle-btn:hover{border-color:var(--g);color:var(--g);}
+.cloak-body{
+  margin-top:10px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.cloak-quick-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:4px;
+  max-height:200px;
+  overflow-y:auto;
+  padding-right:2px;
+}
+.cloak-quick-grid::-webkit-scrollbar{width:3px;}
+.cloak-quick-grid::-webkit-scrollbar-track{background:transparent;}
+.cloak-quick-grid::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.cloak-q-btn{
+  background:#07100a;
+  border:1px solid var(--border);
+  color:var(--gd);
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;
+  padding:5px 4px;
+  cursor:pointer;
+  border-radius:3px;
+  transition:all 0.15s;
+  text-align:left;
+  display:flex;
+  align-items:center;
+  gap:4px;
+}
+.cloak-q-btn:hover{border-color:var(--gd);background:#0a1a0d;box-shadow:0 0 6px var(--glow);}
+.cloak-q-btn.active{border-color:var(--g);background:#0a1a0d;box-shadow:0 0 8px var(--glow);}
+.cloak-q-btn .cq-i{font-size:13px;}
+.cloak-q-btn .cq-n{color:var(--g);font-size:10px;}
+.cloak-custom-mini{
+  display:flex;
+  gap:4px;
+  margin-top:2px;
+}
+.cloak-custom-mini input{
+  flex:1;
+  background:#07100a;
+  border:1px solid #143820;
+  color:var(--g);
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;
+  padding:5px 7px;
+  outline:none;
+  border-radius:3px;
+}
+.cloak-custom-mini input:focus{border-color:var(--g);}
+.cloak-custom-mini button{
+  background:var(--gdark);
+  border:1px solid var(--gd);
+  color:var(--g);
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;
+  padding:5px 8px;
+  cursor:pointer;
+  border-radius:3px;
+  white-space:nowrap;
+}
+.cloak-mini-status{
+  font-size:9px;
+  color:#1a7a2a;
+  letter-spacing:1px;
+  min-height:12px;
+}
+.cloak-mini-clear{
+  background:transparent;
+  border:1px solid #143820;
+  color:var(--dim);
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px;
+  padding:4px 8px;
+  cursor:pointer;
+  border-radius:3px;
+  transition:all 0.15s;
+  margin-top:2px;
+}
+.cloak-mini-clear:hover{border-color:#ff4444;color:#ff4444;}
 </style>
+<base target="_blank">
 <base target="_blank">
 </head>
 <body>
@@ -219,9 +354,11 @@ footer a:hover{color:var(--g);}
       <div class="s-row">
         <div class="s-row-label">How should apps open?</div>
         <select class="s-select" id="launchModeSelect" onchange="setLaunchMode(this.value)">
+          <option value="cloudflare">Cloudflare proxy (temp link) ★ DEFAULT</option>
           <option value="about_blank">about:blank (iframe — stealth)</option>
           <option value="githack">Githack direct link (new tab)</option>
           <option value="newtab">New Tab (plain open)</option>
+          <option value="cloudflare">Cloudflare proxy (temp link)</option>
         </select>
       </div>
       <div class="cloak-status" id="launchModeStatus">▶ Mode: about:blank iframe</div>
@@ -274,6 +411,17 @@ footer a:hover{color:var(--g);}
       <div class="cloak-status" id="cloakStatus">▶ No cloak active</div>
     </div>
     <div class="s-sec">
+      <div class="s-lbl">// CLOUDFLARE PROXY</div>
+      <div class="s-row">
+        <div class="s-row-label">Worker URL (pre-configured):</div>
+        <input class="ab-input" id="cfWorkerUrl" placeholder="https://your-worker.workers.dev" value="https://monglelink.whyhe246.workers.dev" readonly onchange="saveCfWorker()">
+      </div>
+      <div class="cloak-status" id="cfStatus">▶ Worker: monglelink.whyhe246.workers.dev (default)</div>
+      <div style="font-size:10px;color:var(--dim);margin-top:8px;line-height:1.6;">
+        Cloudflare proxy is pre-configured. Set Launch Mode to "Cloudflare proxy" and every app click generates a unique temporary link. Advanced users can override the worker URL via localStorage key <code>mongle_cf_worker</code>.
+      </div>
+    </div>
+    <div class="s-sec">
       <div class="s-lbl">// OPEN ANY URL</div>
       <input class="ab-input" id="abUrl" placeholder="paste any URL...">
       <button class="ab-go" onclick="openBlank()">▶ OPEN (with current mode + cloak)</button>
@@ -320,6 +468,40 @@ footer a:hover{color:var(--g);}
       <button class="hdr-btn" onclick="toggleS()">⚙ SETTINGS</button>
     </div>
   </header>
+<div id="cloakToggleBox">
+  <div class="cloak-header" onclick="toggleCloakBox()">
+    <div class="cloak-header-lbl">🔒 CLOAK</div>
+    <button class="cloak-toggle-btn" id="cloakBoxToggleBtn" onclick="event.stopPropagation();toggleCloakBox()">▼</button>
+  </div>
+  <div class="cloak-body" id="cloakBoxBody">
+    <div class="cloak-quick-grid">
+      <button class="cloak-q-btn" onclick="applyCloakQuick('Google Classroom','📋','https://classroom.google.com/favicon.ico')"><span class="cq-i">📋</span><span class="cq-n">G.Classroom</span></button>
+      <button class="cloak-q-btn" onclick="applyCloakQuick('Wikipedia','📖','https://en.wikipedia.org/favicon.ico')"><span class="cq-i">📖</span><span class="cq-n">Wikipedia</span></button>
+      <button class="cloak-q-btn" onclick="applyCloakQuick('Khan Academy','🎓','https://www.khanacademy.org/favicon.ico')"><span class="cq-i">🎓</span><span class="cq-n">Khan</span></button>
+      <button class="cloak-q-btn" onclick="applyCloakQuick('Duolingo','🦉','https://www.duolingo.com/favicon.ico')"><span class="cq-i">🦉</span><span class="cq-n">Duolingo</span></button>
+      <button class="cloak-q-btn" onclick="applyCloakQuick('Google Docs','📄','https://docs.google.com/favicon.ico')"><span class="cq-i">📄</span><span class="cq-n">G.Docs</span></button>
+      <button class="cloak-q-btn" onclick="applyCloakQuick('Google Slides','🖼️','https://ssl.gstatic.com/docs/presentations/images/favicon5.ico')"><span class="cq-i">🖼️</span><span class="cq-n">G.Slides</span></button>
+      <button class="cloak-q-btn" onclick="applyCloakQuick('Google Sheets','📊','https://ssl.gstatic.com/docs/spreadsheets/favicon3.ico')"><span class="cq-i">📊</span><span class="cq-n">G.Sheets</span></button>
+      <button class="cloak-q-btn" onclick="applyCloakQuick('Google Forms','📝','https://ssl.gstatic.com/docs/forms/device_home/android_192.png')"><span class="cq-i">📝</span><span class="cq-n">G.Forms</span></button>
+      <button class="cloak-q-btn" onclick="applyCloakQuick('Google Meet','📹','https://ssl.gstatic.com/meet/favicon/favicon-48.png')"><span class="cq-i">📹</span><span class="cq-n">G.Meet</span></button>
+      <button class="cloak-q-btn" onclick="applyCloakQuick('Google Drive','☁️','https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_32dp.png')"><span class="cq-i">☁️</span><span class="cq-n">G.Drive</span></button>
+      <button class="cloak-q-btn" onclick="applyCloakQuick('Gmail','✉️','https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico')"><span class="cq-i">✉️</span><span class="cq-n">Gmail</span></button>
+      <button class="cloak-q-btn" onclick="applyCloakQuick('Google Calendar','📅','https://calendar.google.com/googlecalendar/images/favicon_v2014_V2.ico')"><span class="cq-i">📅</span><span class="cq-n">G.Calendar</span></button>
+      <button class="cloak-q-btn" onclick="applyCloakQuick('Quizlet','📚','https://quizlet.com/favicon.ico')"><span class="cq-i">📚</span><span class="cq-n">Quizlet</span></button>
+      <button class="cloak-q-btn" onclick="applyCloakQuick('Kahoot!','🎮','https://kahoot.com/favicon.ico')"><span class="cq-i">🎮</span><span class="cq-n">Kahoot!</span></button>
+      <button class="cloak-q-btn" onclick="applyCloakQuick('Canvas','🖌️','https://du11hjcvx0ubn.cloudfront.net/dist/images/favicon-e10d657a73.ico')"><span class="cq-i">🖌️</span><span class="cq-n">Canvas</span></button>
+      <button class="cloak-q-btn" onclick="applyCloakQuick('Microsoft Teams','💬','https://statics.teams.cdn.office.net/evergreen-assets/apps/teams_favicon-32x32.png')"><span class="cq-i">💬</span><span class="cq-n">MS Teams</span></button>
+    </div>
+    <div style="font-size:9px;color:var(--dim);letter-spacing:1px;margin-top:4px;">Custom title:</div>
+    <div class="cloak-custom-mini">
+      <input id="cloakMiniCustom" placeholder="e.g. My Assignment" onkeydown="if(event.key==='Enter')applyCustomCloakMini()">
+      <button onclick="applyCustomCloakMini()">▶</button>
+    </div>
+    <button class="cloak-mini-clear" onclick="clearCloakMini()">✕ REMOVE CLOAK</button>
+    <div class="cloak-mini-status" id="cloakMiniStatus">▶ No cloak active</div>
+  </div>
+</div>
+
 
   <main>
     <div class="term-bar">
@@ -545,6 +727,8 @@ function launchHub(username){
   startTyping(username);
   initLaunchMode();
   initCloak();
+  initCfWorker();
+  initCloakBox();
   fetchAppsFromRepo();
 }
 
@@ -609,11 +793,12 @@ updateClock();setInterval(updateClock,1000);
 const LAUNCH_MODES = {
   about_blank: 'about:blank',
   githack: 'githack link',
-  newtab: 'new tab'
+  newtab: 'new tab',
+  cloudflare: 'cloudflare proxy'
 };
 
 function getLaunchMode(){
-  return window.__adminLaunchMode || localStorage.getItem('mongle_launch_mode') || 'about_blank';
+  return window.__adminLaunchMode || localStorage.getItem('mongle_launch_mode') || 'cloudflare';
 }
 
 function setLaunchMode(val){
@@ -628,6 +813,80 @@ function initLaunchMode(){
   if(sel) sel.value = mode;
   updateLaunchModeUI(mode);
 }
+
+function getCfWorker(){ return localStorage.getItem('mongle_cf_worker') || 'https://monglelink.whyhe246.workers.dev'; }
+function saveCfWorker(){
+  const val = document.getElementById('cfWorkerUrl').value.trim().replace(/\/$/, '');
+  if(val) localStorage.setItem('mongle_cf_worker', val);
+  else localStorage.removeItem('mongle_cf_worker');
+  updateCfStatus();
+}
+function updateCfStatus(){
+  const status = document.getElementById('cfStatus');
+  const input = document.getElementById('cfWorkerUrl');
+  const worker = getCfWorker();
+  const isDefault = !localStorage.getItem('mongle_cf_worker');
+  if(input) input.value = worker;
+  if(status){
+    if(worker) status.textContent = '▶ Worker: ' + worker + (isDefault ? ' (default)' : ' (custom)');
+    else status.textContent = '▶ No worker configured';
+  }
+}
+function initCfWorker(){ updateCfStatus(); }
+
+function toggleCloakBox(){
+  const box = document.getElementById('cloakToggleBox');
+  const btn = document.getElementById('cloakBoxToggleBtn');
+  if(!box) return;
+  box.classList.toggle('collapsed');
+  if(btn) btn.textContent = box.classList.contains('collapsed') ? '▶' : '▼';
+  localStorage.setItem('mongle_cloakbox_collapsed', box.classList.contains('collapsed') ? '1' : '0');
+}
+
+function applyCloakQuick(title, emoji, faviconUrl){
+  applyCloak(title, emoji, faviconUrl);
+  updateMiniCloakActive(title);
+}
+
+function applyCustomCloakMini(){
+  const title = document.getElementById('cloakMiniCustom').value.trim();
+  if(!title){ alert('Enter a cloak title first.'); return; }
+  applyCloak(title, '🔒', '');
+  updateMiniCloakActive(title);
+}
+
+function clearCloakMini(){
+  clearCloak();
+  updateMiniCloakActive('');
+}
+
+function updateMiniCloakActive(activeTitle){
+  document.querySelectorAll('.cloak-q-btn').forEach(b => b.classList.remove('active'));
+  const status = document.getElementById('cloakMiniStatus');
+  if(activeTitle){
+    if(status) status.textContent = '▶ Active: ' + activeTitle;
+    document.querySelectorAll('.cloak-q-btn').forEach(b => {
+      if(b.textContent.includes(activeTitle) || b.onclick.toString().includes(activeTitle)){
+        b.classList.add('active');
+      }
+    });
+  } else {
+    if(status) status.textContent = '▶ No cloak active';
+  }
+}
+
+function initCloakBox(){
+  const collapsed = localStorage.getItem('mongle_cloakbox_collapsed');
+  const box = document.getElementById('cloakToggleBox');
+  const btn = document.getElementById('cloakBoxToggleBtn');
+  if(collapsed === '1' && box){
+    box.classList.add('collapsed');
+    if(btn) btn.textContent = '▶';
+  }
+  const currentTitle = getCloakTitle();
+  if(currentTitle) updateMiniCloakActive(currentTitle);
+}
+
 
 function updateLaunchModeUI(mode){
   const label = LAUNCH_MODES[mode] || mode;
@@ -723,7 +982,141 @@ function buildCloakedWindow(innerHtml, cloakTitle, cloakFavicon){
     : `<link id="wfav" rel="icon" href="data:,">`;
   w.document.write(`<!DOCTYPE html><html><head>
     <title>${cloakTitle||'New Tab'}</title>${faviconTag}
-    <style>*{margin:0;padding:0;}html,body,iframe{width:100%;height:100%;display:block;overflow:hidden;}</style>
+    <style>*{margin:0;padding:0;}html,body,iframe{width:100%;height:100%;display:block;overflow:hidden;}/* Minimizeable Cloak Toggle Box */
+#cloakToggleBox{
+  position:fixed;
+  top:60px;
+  left:14px;
+  z-index:600;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:10px 12px;
+  min-width:180px;
+  max-width:260px;
+  box-shadow:0 0 20px rgba(0,255,65,0.08);
+  transition:all 0.25s ease;
+}
+#cloakToggleBox.collapsed{
+  min-width:auto;
+  max-width:none;
+  padding:6px 10px;
+}
+#cloakToggleBox.collapsed .cloak-body{display:none;}
+.cloak-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  cursor:pointer;
+  user-select:none;
+}
+.cloak-header-lbl{
+  font-family:'VT323',monospace;
+  font-size:16px;
+  color:var(--g);
+  text-shadow:0 0 6px rgba(0,255,65,0.3);
+  letter-spacing:1px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.cloak-toggle-btn{
+  background:transparent;
+  border:1px solid var(--border);
+  color:var(--dim);
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px;
+  padding:2px 7px;
+  cursor:pointer;
+  border-radius:3px;
+  transition:all 0.15s;
+}
+.cloak-toggle-btn:hover{border-color:var(--g);color:var(--g);}
+.cloak-body{
+  margin-top:10px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.cloak-quick-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:4px;
+  max-height:200px;
+  overflow-y:auto;
+  padding-right:2px;
+}
+.cloak-quick-grid::-webkit-scrollbar{width:3px;}
+.cloak-quick-grid::-webkit-scrollbar-track{background:transparent;}
+.cloak-quick-grid::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.cloak-q-btn{
+  background:#07100a;
+  border:1px solid var(--border);
+  color:var(--gd);
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;
+  padding:5px 4px;
+  cursor:pointer;
+  border-radius:3px;
+  transition:all 0.15s;
+  text-align:left;
+  display:flex;
+  align-items:center;
+  gap:4px;
+}
+.cloak-q-btn:hover{border-color:var(--gd);background:#0a1a0d;box-shadow:0 0 6px var(--glow);}
+.cloak-q-btn.active{border-color:var(--g);background:#0a1a0d;box-shadow:0 0 8px var(--glow);}
+.cloak-q-btn .cq-i{font-size:13px;}
+.cloak-q-btn .cq-n{color:var(--g);font-size:10px;}
+.cloak-custom-mini{
+  display:flex;
+  gap:4px;
+  margin-top:2px;
+}
+.cloak-custom-mini input{
+  flex:1;
+  background:#07100a;
+  border:1px solid #143820;
+  color:var(--g);
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;
+  padding:5px 7px;
+  outline:none;
+  border-radius:3px;
+}
+.cloak-custom-mini input:focus{border-color:var(--g);}
+.cloak-custom-mini button{
+  background:var(--gdark);
+  border:1px solid var(--gd);
+  color:var(--g);
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;
+  padding:5px 8px;
+  cursor:pointer;
+  border-radius:3px;
+  white-space:nowrap;
+}
+.cloak-mini-status{
+  font-size:9px;
+  color:#1a7a2a;
+  letter-spacing:1px;
+  min-height:12px;
+}
+.cloak-mini-clear{
+  background:transparent;
+  border:1px solid #143820;
+  color:var(--dim);
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px;
+  padding:4px 8px;
+  cursor:pointer;
+  border-radius:3px;
+  transition:all 0.15s;
+  margin-top:2px;
+}
+.cloak-mini-clear:hover{border-color:#ff4444;color:#ff4444;}
+</style>
     </head><body>${innerHtml}</body></html>`);
   w.document.close();
   return w;
@@ -740,6 +1133,14 @@ function openAny(url){
   const mode=getLaunchMode();
   const cTitle=getCloakTitle();
   const cFav=getCloakFavicon();
+  if(mode==='cloudflare'){
+    const worker=getCfWorker();
+    if(!worker){alert('Configure Cloudflare Worker URL in Settings first.');return;}
+    const token=Math.random().toString(36).substring(2,10)+Date.now().toString(36);
+    const cfUrl=`${worker}/${token}?app=${encodeURIComponent(url)}&cloak=${encodeURIComponent(cTitle||'Google Classroom')}&favicon=${encodeURIComponent(cFav||'https://classroom.google.com/favicon.ico')}`;
+    window.open(cfUrl,'_blank');
+    return;
+  }
   if(mode==='about_blank'){
     openProxy(url);
   } else {
@@ -759,6 +1160,14 @@ function openGH(file){
   const mode=getLaunchMode();
   const cTitle=getCloakTitle();
   const cFav=getCloakFavicon();
+  if(mode==='cloudflare'){
+    const worker=getCfWorker();
+    if(!worker){alert('Configure Cloudflare Worker URL in Settings first.');return;}
+    const token=Math.random().toString(36).substring(2,10)+Date.now().toString(36);
+    const cfUrl=`${worker}/${token}?app=${encodeURIComponent(file)}&cloak=${encodeURIComponent(cTitle||'Google Classroom')}&favicon=${encodeURIComponent(cFav||'https://classroom.google.com/favicon.ico')}`;
+    window.open(cfUrl,'_blank');
+    return;
+  }
   if(mode==='about_blank'){
     const iframeHtml=`<iframe src="${url}" style="width:100%;height:100%;border:none;" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"></iframe>`;
     buildCloakedWindow(iframeHtml, cTitle||'New Tab', cFav);
