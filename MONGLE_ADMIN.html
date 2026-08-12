@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MONGLE_OS // ADMIN</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
+<style>
+:root{--g:#00ff41;--gd:#00c832;--gdark:#004d15;--glow:rgba(0,255,65,0.18);--bg:#030803;--card:#07100a;--border:#0d2b12;--dim:#1e6b2e;--red:#ff4444;--red-dark:#660000;--amber:#ffaa00;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--g);font-family:'Share Tech Mono',monospace;min-height:100vh;overflow-x:hidden;}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.09) 3px,rgba(0,0,0,0.09) 4px);pointer-events:none;z-index:9998;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at center,transparent 50%,rgba(0,0,0,0.65) 100%);pointer-events:none;z-index:9997;}
+
+#loginScreen{position:fixed;inset:0;background:var(--bg);z-index:9000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
+#adminPanel{display:none;}
+
+header{display:flex;align-items:center;gap:14px;padding:0 18px;height:50px;border-bottom:1px solid var(--border);background:rgba(3,8,3,0.97);position:sticky;top:0;z-index:500;}
+.logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.logo-svg{width:34px;height:34px;flex-shrink:0;filter:drop-shadow(0 0 8px var(--g));}
+.logo-text{font-family:'VT323',monospace;font-size:26px;color:var(--g);text-shadow:0 0 10px var(--g);letter-spacing:2px;}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.hdr-status{font-size:11px;color:var(--dim);}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--g);box-shadow:0 0 6px var(--g);animation:blink 2.2s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+main{padding:22px 18px 40px;max-width:1400px;margin:0 auto;}
+.sec-lbl{font-size:10px;letter-spacing:3px;color:var(--dim);margin-bottom:14px;display:flex;align-items:center;gap:10px;margin-top:28px;}
+.sec-lbl::after{content:'';flex:1;height:1px;background:var(--border);}
+.sec-lbl:first-of-type{margin-top:0;}
+
+.admin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+@media(max-width:1000px){.admin-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:600px){.admin-grid{grid-template-columns:1fr;}}
+
+.admin-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:20px;display:flex;flex-direction:column;gap:12px;}
+.admin-card h3{font-family:'VT323',monospace;font-size:22px;color:var(--g);text-shadow:0 0 8px var(--g);letter-spacing:1px;}
+.admin-card p{font-size:11px;color:var(--dim);line-height:1.6;}
+
+input,textarea,select{
+  background:#07100a;border:1px solid #143820;color:var(--g);font-family:'Share Tech Mono',monospace;font-size:12px;padding:8px 10px;outline:none;border-radius:3px;width:100%;resize:vertical;
+}
+input::placeholder,textarea::placeholder{color:#1a5a2a;}
+input:focus,textarea:focus,select:focus{border-color:var(--g);box-shadow:0 0 10px var(--glow);}
+select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2300c832' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;}
+select option{background:#040d06;color:var(--g);}
+
+.btn{
+  background:var(--gdark);border:1px solid var(--gd);color:var(--g);font-family:'Share Tech Mono',monospace;font-size:12px;padding:9px 14px;cursor:pointer;border-radius:3px;letter-spacing:1px;transition:all 0.15s;text-align:center;
+}
+.btn:hover{background:#006020;box-shadow:0 0 10px var(--glow);}
+.btn-red{background:var(--red-dark);border-color:var(--red);color:var(--red);}
+.btn-red:hover{background:#440000;box-shadow:0 0 10px rgba(255,68,68,0.3);}
+.btn-amber{background:#332200;border-color:var(--amber);color:var(--amber);}
+.btn-amber:hover{background:#4d3300;box-shadow:0 0 10px rgba(255,170,0,0.2);}
+.btn-small{font-size:10px;padding:5px 10px;}
+
+.status-msg{font-size:11px;letter-spacing:1px;min-height:16px;margin-top:4px;}
+.status-ok{color:var(--g);}
+.status-err{color:var(--red);}
+.status-warn{color:var(--amber);}
+
+.code-box{background:#040d06;border:1px solid var(--border);border-radius:4px;padding:12px;font-size:11px;color:var(--dim);line-height:1.7;max-height:200px;overflow-y:auto;white-space:pre-wrap;}
+
+.visitor-list{background:#040d06;border:1px solid var(--border);border-radius:4px;padding:10px;max-height:300px;overflow-y:auto;font-size:10px;line-height:1.8;}
+.visitor-item{display:flex;justify-content:space-between;align-items:center;padding:4px 6px;border-bottom:1px solid #0a1a0d;}
+.visitor-item:last-child{border-bottom:none;}
+.visitor-id{color:var(--gd);}
+.visitor-info{color:var(--dim);}
+
+.tabs{display:flex;gap:4px;margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:8px;}
+.tab-btn{background:transparent;border:1px solid #143820;color:var(--dim);font-family:'Share Tech Mono',monospace;font-size:11px;padding:6px 12px;cursor:pointer;border-radius:3px;transition:all 0.15s;}
+.tab-btn:hover{border-color:var(--gd);color:var(--g);}
+.tab-btn.active{border-color:var(--g);color:var(--g);background:#0a1a0d;box-shadow:0 0 8px var(--glow);}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+
+.fullwidth{grid-column:1 / -1;}
+@media(max-width:1000px){.fullwidth{grid-column:1 / -1;}}
+
+footer{border-top:1px solid var(--border);padding:12px 18px;font-size:10px;color:#1a5a2a;letter-spacing:1px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:40px;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen">
+  <svg width="72" height="72" viewBox="0 0 48 48" style="filter:drop-shadow(0 0 14px var(--g));margin-bottom:8px;">
+    <rect width="48" height="48" rx="10" fill="#000"/>
+    <rect x="1.5" y="1.5" width="45" height="45" rx="8.5" fill="none" stroke="#00ff41" stroke-width="1.5"/>
+    <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" font-family="VT323,monospace" font-size="30" fill="#00ff41">M</text>
+  </svg>
+  <div style="font-family:'VT323',monospace;font-size:32px;color:var(--g);text-shadow:0 0 14px var(--g);letter-spacing:3px;">ADMIN PANEL</div>
+  <div style="font-size:11px;color:var(--dim);letter-spacing:3px;">AUTHORIZATION REQUIRED</div>
+  <div style="background:#07100a;border:1px solid #143820;border-radius:6px;padding:24px 28px;width:340px;display:flex;flex-direction:column;gap:10px;">
+    <input id="adminPass" type="password" placeholder="enter admin password..." autocomplete="off"
+      style="background:#030803;border:1px solid #143820;color:var(--g);font-family:'Share Tech Mono',monospace;font-size:14px;padding:9px 12px;outline:none;border-radius:3px;letter-spacing:1px;"
+      onfocus="this.style.borderColor='var(--g)'" onblur="this.style.borderColor='#143820'"
+      onkeydown="if(event.key==='Enter')adminLogin()">
+    <div id="loginErr" style="font-size:10px;color:#ff4444;letter-spacing:1px;min-height:14px;"></div>
+    <button onclick="adminLogin()" class="btn">▶ AUTHENTICATE</button>
+  </div>
+  <div style="font-size:9px;color:#0d2b12;letter-spacing:2px;">DEFAULT: mongle2024</div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="adminPanel">
+  <header>
+    <div class="logo-wrap">
+      <svg class="logo-svg" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#000"/><rect x="1.5" y="1.5" width="45" height="45" rx="8.5" fill="none" stroke="#00ff41" stroke-width="1.5"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" font-family="VT323,monospace" font-size="30" fill="#00ff41">M</text></svg>
+      <span class="logo-text">MONGLE_OS // ADMIN</span>
+    </div>
+    <div class="hdr-right">
+      <span class="dot"></span>
+      <span class="hdr-status">ADMIN MODE</span>
+      <button class="btn btn-small" onclick="adminLogout()">✕ LOGOUT</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- PUSH UPDATE / ANNOUNCEMENT -->
+    <div class="sec-lbl">// PUSH UPDATE</div>
+    <div class="admin-grid">
+      <div class="admin-card">
+        <h3>📡 LIVE ANNOUNCEMENT</h3>
+        <p>Push a real-time update banner to ALL active users. Appears at top of hub.</p>
+        <input id="upTitle" placeholder="Title (e.g. NEW APP DROPPED)">
+        <textarea id="upBody" rows="3" placeholder="Body text (e.g. Check out the new proxy hub now live!)"></textarea>
+        <button class="btn" onclick="pushUpdate()">▶ BROADCAST UPDATE</button>
+        <div id="upStatus" class="status-msg"></div>
+      </div>
+
+      <div class="admin-card">
+        <h3>📝 VERSION & CHANGELOG</h3>
+        <p>Set hub version and changelog. Users see this on next load.</p>
+        <input id="verNum" placeholder="Version (e.g. 1.2.0)">
+        <input id="verDate" placeholder="Date (e.g. AUG 11 2026)">
+        <textarea id="verChangelog" rows="3" placeholder="Changelog text..."></textarea>
+        <button class="btn" onclick="pushVersion()">▶ PUSH VERSION</button>
+        <div id="verStatus" class="status-msg"></div>
+      </div>
+
+      <div class="admin-card">
+        <h3>⚙ HUB SETTINGS</h3>
+        <p>Force launch mode and global cloak for all users.</p>
+        <select id="forceLaunch">
+          <option value="">-- force launch mode --</option>
+          <option value="about_blank">about:blank (stealth)</option>
+          <option value="githack">Githack direct</option>
+          <option value="newtab">New Tab</option>
+        </select>
+        <input id="forceCloakTitle" placeholder="Force cloak title (e.g. Google Classroom)">
+        <input id="forceCloakFavicon" placeholder="Force cloak favicon URL">
+        <button class="btn" onclick="pushHubSettings()">▶ APPLY SETTINGS</button>
+        <button class="btn btn-red" onclick="clearHubSettings()">✕ CLEAR FORCED SETTINGS</button>
+        <div id="hubStatus" class="status-msg"></div>
+      </div>
+    </div>
+
+    <!-- BAN MANAGEMENT -->
+    <div class="sec-lbl">// USER MANAGEMENT</div>
+    <div class="admin-grid">
+      <div class="admin-card">
+        <h3>🔨 BAN USER</h3>
+        <p>Ban by UID, fingerprint, or IP. Banned users see ban screen immediately.</p>
+        <input id="banTarget" placeholder="UID or fingerprint...">
+        <input id="banReason" placeholder="Ban reason (shown to user)...">
+        <button class="btn btn-red" onclick="banUser()">▶ ISSUE BAN</button>
+        <div id="banStatus" class="status-msg"></div>
+      </div>
+
+      <div class="admin-card">
+        <h3>🔓 UNBAN USER</h3>
+        <p>Remove a ban by UID or fingerprint.</p>
+        <input id="unbanTarget" placeholder="UID or fingerprint...">
+        <button class="btn btn-amber" onclick="unbanUser()">▶ REVOKE BAN</button>
+        <div id="unbanStatus" class="status-msg"></div>
+      </div>
+
+      <div class="admin-card">
+        <h3>📋 BAN LIST</h3>
+        <p>Currently banned IDs (last 20).</p>
+        <div class="code-box" id="banListBox" style="max-height:160px;">Loading...</div>
+        <button class="btn btn-small" onclick="loadBanList()">↻ REFRESH</button>
+      </div>
+    </div>
+
+    <!-- CODE EDITOR / FILE PUSH -->
+    <div class="sec-lbl">// CODE DEPLOYMENT</div>
+    <div class="admin-grid">
+      <div class="admin-card fullwidth">
+        <h3>💻 LIVE CODE EDITOR</h3>
+        <p>Type or paste HTML/JS/CSS below and push it as a live update. This writes to Firestore and can be pulled by the hub as an override.</p>
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab('code')">CODE EDITOR</button>
+          <button class="tab-btn" onclick="switchTab('file')">FILE UPLOAD</button>
+          <button class="tab-btn" onclick="switchTab("preview")">PREVIEW</button>
+        </div>
+        <div id="tab-code" class="tab-content active">
+          <textarea id="codeEditor" rows="12" placeholder="<!-- Paste your HTML/JS/CSS here -->
+<!DOCTYPE html>
+<html>
+<head>...</head>
+<body>...</body>
+</html>"></textarea>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <input id="codeName" placeholder="File name (e.g. custom_hub.html)" style="flex:1;">
+            <button class="btn" onclick="saveCode()">▶ SAVE TO FIRESTORE</button>
+            <button class="btn btn-amber" onclick="loadCode()">↻ LOAD LAST</button>
+          </div>
+        </div>
+        <div id="tab-file" class="tab-content">
+          <input type="file" id="fileInput" accept=".html,.css,.js" style="padding:10px;background:#040d06;border:1px dashed var(--border);color:var(--dim);cursor:pointer;">
+          <div id="fileInfo" style="font-size:11px;color:var(--dim);margin-top:8px;">Select a file to read its contents into the editor.</div>
+        </div>
+        <div id="tab-preview" class="tab-content">
+          <div style="background:#040d06;border:1px solid var(--border);border-radius:4px;padding:12px;min-height:200px;">
+            <div style="font-size:11px;color:var(--dim);margin-bottom:8px;">Preview will render here when code is saved.</div>
+            <iframe id="codePreview" style="width:100%;height:300px;border:1px solid #143820;background:#000;border-radius:3px;"></iframe>
+          </div>
+        </div>
+        <div id="codeStatus" class="status-msg" style="margin-top:8px;"></div>
+      </div>
+    </div>
+
+    <!-- VISITOR LOGS -->
+    <div class="sec-lbl">// VISITOR LOGS</div>
+    <div class="admin-grid">
+      <div class="admin-card fullwidth">
+        <h3>👁 ACTIVE SESSIONS</h3>
+        <p>Recent visitors (last 50). Click refresh to update.</p>
+        <div class="visitor-list" id="visitorList">Loading...</div>
+        <button class="btn btn-small" onclick="loadVisitors()" style="margin-top:10px;">↻ REFRESH VISITORS</button>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <svg width="20" height="20" viewBox="0 0 48 48" style="border-radius:5px;flex-shrink:0;"><rect width="48" height="48" rx="8" fill="#000"/><rect x="1.5" y="1.5" width="45" height="45" rx="6.5" fill="none" stroke="#00ff41" stroke-width="1.5"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" font-family="VT323,monospace" font-size="28" fill="#00ff41">M</text></svg>
+    <span>MONGLE_OS ADMIN</span>
+    <span>● SECURE CONNECTION</span>
+  </footer>
+</div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, query, orderBy, limit, getDocs, serverTimestamp, where }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const FB = {
+  apiKey:"AIzaSyDGwa_5InnMoKUpVBT9x-nFzBUFHGf3C-Y",
+  authDomain:"mongle-af768.firebaseapp.com",
+  databaseURL:"https://mongle-af768-default-rtdb.firebaseio.com",
+  projectId:"mongle-af768",
+  storageBucket:"mongle-af768.firebasestorage.app",
+  messagingSenderId:"190331577532",
+  appId:"1:190331577532:web:e5f3ced220dac11ddb9cb9",
+  measurementId:"G-GYVPTP0QSE"
+};
+const app = initializeApp(FB);
+const db  = getFirestore(app);
+
+// Default admin password (change this!)
+const ADMIN_PASSWORD = "mongle2024";
+
+window.adminLogin = function(){
+  const pass = document.getElementById('adminPass').value;
+  const err = document.getElementById('loginErr');
+  if(pass !== ADMIN_PASSWORD){
+    err.textContent = '✕ ACCESS DENIED — INVALID PASSWORD';
+    return;
+  }
+  err.textContent = '';
+  sessionStorage.setItem('mongle_admin_auth','1');
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('adminPanel').style.display = 'block';
+  loadBanList();
+  loadVisitors();
+};
+
+window.adminLogout = function(){
+  sessionStorage.removeItem('mongle_admin_auth');
+  location.reload();
+};
+
+// Auto-login if session exists
+if(sessionStorage.getItem('mongle_admin_auth') === '1'){
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('adminPanel').style.display = 'block';
+  setTimeout(()=>{loadBanList();loadVisitors();},100);
+}
+
+// ── PUSH UPDATE ──
+window.pushUpdate = async function(){
+  const title = document.getElementById('upTitle').value.trim();
+  const body = document.getElementById('upBody').value.trim();
+  const status = document.getElementById('upStatus');
+  if(!title || !body){status.textContent='✕ Fill both fields.';status.className='status-msg status-err';return;}
+  try{
+    const id = 'upd_' + Date.now();
+    await setDoc(doc(db,'updates',id),{
+      title, body,
+      timestamp: serverTimestamp()
+    });
+    status.textContent='✓ UPDATE BROADCASTED — ID: '+id;
+    status.className='status-msg status-ok';
+    document.getElementById('upTitle').value='';
+    document.getElementById('upBody').value='';
+  }catch(e){
+    status.textContent='✕ ERROR: '+e.message;
+    status.className='status-msg status-err';
+  }
+};
+
+// ── PUSH VERSION ──
+window.pushVersion = async function(){
+  const version = document.getElementById('verNum').value.trim();
+  const date = document.getElementById('verDate').value.trim();
+  const changelog = document.getElementById('verChangelog').value.trim();
+  const status = document.getElementById('verStatus');
+  if(!version){status.textContent='✕ Version required.';status.className='status-msg status-err';return;}
+  try{
+    await setDoc(doc(db,'system','version'),{
+      version, date, changelog,
+      timestamp: serverTimestamp()
+    });
+    status.textContent='✓ VERSION v'+version+' PUSHED';
+    status.className='status-msg status-ok';
+  }catch(e){
+    status.textContent='✕ ERROR: '+e.message;
+    status.className='status-msg status-err';
+  }
+};
+
+// ── HUB SETTINGS ──
+window.pushHubSettings = async function(){
+  const launchMode = document.getElementById('forceLaunch').value;
+  const cloakTitle = document.getElementById('forceCloakTitle').value.trim();
+  const cloakFavicon = document.getElementById('forceCloakFavicon').value.trim();
+  const status = document.getElementById('hubStatus');
+  const data = {};
+  if(launchMode) data.launchMode = launchMode;
+  if(cloakTitle) { data.cloakTitle = cloakTitle; data.cloakFavicon = cloakFavicon; }
+  if(Object.keys(data).length === 0){status.textContent='✕ Nothing to apply.';status.className='status-msg status-err';return;}
+  try{
+    await setDoc(doc(db,'system','hubSettings'),{...data, timestamp: serverTimestamp()});
+    status.textContent='✓ HUB SETTINGS PUSHED';
+    status.className='status-msg status-ok';
+  }catch(e){
+    status.textContent='✕ ERROR: '+e.message;
+    status.className='status-msg status-err';
+  }
+};
+
+window.clearHubSettings = async function(){
+  const status = document.getElementById('hubStatus');
+  try{
+    await deleteDoc(doc(db,'system','hubSettings'));
+    status.textContent='✓ FORCED SETTINGS CLEARED';
+    status.className='status-msg status-ok';
+  }catch(e){
+    status.textContent='✕ ERROR: '+e.message;
+    status.className='status-msg status-err';
+  }
+};
+
+// ── BAN / UNBAN ──
+window.banUser = async function(){
+  const target = document.getElementById('banTarget').value.trim();
+  const reason = document.getElementById('banReason').value.trim() || 'No reason given.';
+  const status = document.getElementById('banStatus');
+  if(!target){status.textContent='✕ Enter a UID or fingerprint.';status.className='status-msg status-err';return;}
+  try{
+    await setDoc(doc(db,'bans',target),{banned:true, reason, timestamp: serverTimestamp()});
+    status.textContent='✓ BAN ISSUED: '+target;
+    status.className='status-msg status-ok';
+    loadBanList();
+  }catch(e){
+    status.textContent='✕ ERROR: '+e.message;
+    status.className='status-msg status-err';
+  }
+};
+
+window.unbanUser = async function(){
+  const target = document.getElementById('unbanTarget').value.trim();
+  const status = document.getElementById('unbanStatus');
+  if(!target){status.textContent='✕ Enter a UID or fingerprint.';status.className='status-msg status-err';return;}
+  try{
+    await deleteDoc(doc(db,'bans',target));
+    status.textContent='✓ BAN REVOKED: '+target;
+    status.className='status-msg status-ok';
+    loadBanList();
+  }catch(e){
+    status.textContent='✕ ERROR: '+e.message;
+    status.className='status-msg status-err';
+  }
+};
+
+window.loadBanList = async function(){
+  const box = document.getElementById('banListBox');
+  box.textContent = 'Loading...';
+  try{
+    const q = query(collection(db,'bans'), orderBy('timestamp','desc'), limit(20));
+    const snap = await getDocs(q);
+    if(snap.empty){box.textContent='No active bans.';return;}
+    let out = '';
+    snap.forEach(d=>{
+      const data = d.data();
+      out += `[${d.id}] — ${data.reason || 'No reason'}\n`;
+    });
+    box.textContent = out;
+  }catch(e){box.textContent='Error loading bans: '+e.message;}
+};
+
+// ── VISITORS ──
+window.loadVisitors = async function(){
+  const box = document.getElementById('visitorList');
+  box.innerHTML = '<div style="color:var(--dim)">Loading...</div>';
+  try{
+    const q = query(collection(db,'visitors'), orderBy('lastSeen','desc'), limit(50));
+    const snap = await getDocs(q);
+    if(snap.empty){box.innerHTML='<div style="color:var(--dim)">No visitors logged yet.</div>';return;}
+    box.innerHTML = '';
+    snap.forEach(d=>{
+      const data = d.data();
+      const div = document.createElement('div');
+      div.className = 'visitor-item';
+      div.innerHTML = `<span class="visitor-id">${d.id}</span><span class="visitor-info">${data.os||'?'} / ${data.browser||'?'} / ${data.ip||'?'} / ${data.lastSeen?.split('T')[0]||'?'}</span>`;
+      box.appendChild(div);
+    });
+  }catch(e){box.innerHTML='<div style="color:var(--red)">Error: '+e.message+'</div>';}
+};
+
+// ── CODE EDITOR ──
+window.switchTab = function(name){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+};
+
+window.saveCode = async function(){
+  const code = document.getElementById('codeEditor').value;
+  const name = document.getElementById('codeName').value.trim() || 'deploy_' + Date.now();
+  const status = document.getElementById('codeStatus');
+  if(!code){status.textContent='✕ Code is empty.';status.className='status-msg status-err';return;}
+  try{
+    await setDoc(doc(db,'deployments',name),{
+      code, name,
+      timestamp: serverTimestamp()
+    });
+    status.textContent='✓ DEPLOYED: '+name;
+    status.className='status-msg status-ok';
+    // update preview
+    const preview = document.getElementById('codePreview');
+    preview.srcdoc = code;
+  }catch(e){
+    status.textContent='✕ ERROR: '+e.message;
+    status.className='status-msg status-err';
+  }
+};
+
+window.loadCode = async function(){
+  const status = document.getElementById('codeStatus');
+  try{
+    const q = query(collection(db,'deployments'), orderBy('timestamp','desc'), limit(1));
+    const snap = await getDocs(q);
+    if(snap.empty){status.textContent='✕ No saved code found.';status.className='status-msg status-err';return;}
+    const data = snap.docs[0].data();
+    document.getElementById('codeEditor').value = data.code || '';
+    document.getElementById('codeName').value = data.name || '';
+    status.textContent='✓ LOADED: '+data.name;
+    status.className='status-msg status-ok';
+  }catch(e){
+    status.textContent='✕ ERROR: '+e.message;
+    status.className='status-msg status-err';
+  }
+};
+
+// File upload handler
+document.getElementById('fileInput').addEventListener('change', function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    document.getElementById('codeEditor').value = ev.target.result;
+    document.getElementById('codeName').value = file.name;
+    document.getElementById('fileInfo').textContent = 'Loaded '+file.name+' ('+file.size+' bytes)';
+    // auto-switch to code tab
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+    document.querySelector('.tab-btn').classList.add('active');
+    document.getElementById('tab-code').classList.add('active');
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>
