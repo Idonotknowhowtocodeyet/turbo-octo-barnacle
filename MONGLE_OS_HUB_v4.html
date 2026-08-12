@@ -511,10 +511,7 @@ async function boot(){
     }
   }catch(e){}
 
-  setProgress(85,'LOADING UPDATES...');
-  await loadUpdates();
-
-  setProgress(90,'REGISTERING VISITOR...');
+  
   const info = await infoPromise;
   showMyInfo(info);
 
