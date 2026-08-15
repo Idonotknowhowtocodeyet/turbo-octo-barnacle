@@ -127,6 +127,28 @@ main{padding:22px 18px 40px;max-width:1380px;margin:0 auto;}
 .card-mode-badge{position:absolute;top:8px;right:8px;font-size:8px;letter-spacing:1px;color:var(--dim);background:#040d06;border:1px solid var(--border);padding:2px 5px;border-radius:3px;}
 .new-badge{position:absolute;top:8px;left:8px;font-size:8px;letter-spacing:1px;color:#000;background:var(--g);padding:2px 6px;border-radius:3px;font-weight:bold;animation:pulse 2s infinite;}
 footer{border-top:1px solid var(--border);padding:12px 18px;font-size:10px;color:#1a5a2a;letter-spacing:1px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+/* Mongle Hide */
+body.mongle-hide,body.mongle-hide *{color:transparent!important;text-shadow:none!important;}
+body.mongle-hide #mongleHideBtn,body.mongle-hide #mongleHideBtn *{color:var(--g)!important;text-shadow:0 0 8px var(--glow)!important;}
+body.mongle-hide img,body.mongle-hide svg,body.mongle-hide .logo-svg,body.mongle-hide .card-logo{opacity:0.08!important;filter:grayscale(100%)!important;}
+body.mongle-hide .app-card,body.mongle-hide header,body.mongle-hide footer,body.mongle-hide .term-bar,body.mongle-hide #cloakToggleBox{border-color:rgba(13,43,18,0.25)!important;box-shadow:none!important;}
+/* Keyboard Nav Focus */
+.app-card.keyboard-focus{border-color:var(--g)!important;box-shadow:0 0 24px rgba(0,255,65,0.25),inset 0 0 24px rgba(0,255,65,0.06)!important;transform:translateY(-3px);}
+.app-card.keyboard-focus::before{opacity:1!important;}
+.app-card.keyboard-focus .card-launch{color:var(--gd)!important;}
+/* Panic Mode */
+body.panic-mode{filter:blur(4px);pointer-events:none;}
+body.panic-mode #panicOverlay{position:fixed;inset:0;background:#fff;z-index:100000;display:flex;align-items:center;justify-content:center;}
+/* Recent Apps */
+.recent-sec{margin-top:30px;}
+.recent-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;}
+.recent-card{background:#07100a;border:1px solid var(--border);border-radius:4px;padding:10px 12px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:8px;}
+.recent-card:hover{border-color:var(--gd);box-shadow:0 0 12px var(--glow);}
+.recent-card .rc-dot{width:6px;height:6px;border-radius:50%;background:var(--g);box-shadow:0 0 4px var(--g);}
+.recent-card .rc-name{font-family:'VT323',monospace;font-size:14px;color:var(--g);letter-spacing:1px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.recent-card .rc-time{font-size:9px;color:var(--dim);letter-spacing:1px;}
+@media(max-width:900px){.recent-grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:480px){.recent-grid{grid-template-columns:1fr;}}
 footer a{color:var(--dim);text-decoration:none;transition:color 0.15s;}
 footer a:hover{color:var(--g);}
 .footer-clock{margin-left:auto;font-family:'VT323',monospace;font-size:18px;color:var(--g);}
@@ -275,6 +297,7 @@ footer a:hover{color:var(--g);}
 </style>
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
 <div id="loadOverlay">
@@ -358,7 +381,10 @@ footer a:hover{color:var(--g);}
           <option value="about_blank">about:blank (iframe — stealth)</option>
           <option value="githack">Githack direct link (new tab)</option>
           <option value="newtab">New Tab (plain open)</option>
-          <option value="cloudflare">Cloudflare proxy (temp link)</option>
+          <option value="blob">Blob URL (no history trace)</option>
+          <option value="embed">Embed tag (legacy stealth)</option>
+          <option value="popup">Popup window (stripped chrome)</option>
+          <option value="history_mask">History mask (fake URL bar)</option>
         </select>
       </div>
       <div class="cloak-status" id="launchModeStatus">▶ Mode: about:blank iframe</div>
@@ -396,7 +422,7 @@ footer a:hover{color:var(--g);}
         <button class="cloak-btn" onclick="applyCloak('Microsoft Teams','💬','https://statics.teams.cdn.office.net/evergreen-assets/apps/teams_favicon-32x32.png')"><span class="ci">💬</span><span class="cn">MS Teams</span></button>
         <button class="cloak-btn" onclick="applyCloak('Microsoft Word','📘','https://res.cdn.office.net/officehub/images/content/images/favicon_word_1x-b93a763.png')"><span class="ci">📘</span><span class="cn">Word Online</span></button>
         <button class="cloak-btn" onclick="applyCloak('Edulastic','🧪','https://cdn.edulastic.com/default/custom-themes/15/Branding/favicon.ico')"><span class="ci">🧪</span><span class="cn">Edulastic</span></button>
-        <button class="cloak-btn" onclick="applyCloak('Padlet','📌','https://padlet.com/favicon.ico')"><span class="ci">📌</span><span class="cn">Padlet</span></button>
+        <button class="cloak-btn" onclick="applyCloak('Padlet','📌','https://padlet.com/favicon.ico')"><span class="ci">📌</span><span class="cn">Padlet</span></button><button class="cloak-btn" onclick="applyCloak('Zoom','📹','https://st1.zoom.us/zoom.ico')"><span class="ci">📹</span><span class="cn">Zoom</span></button><button class="cloak-btn" onclick="applyCloak('Discord','💬','https://discord.com/favicon.ico')"><span class="ci">💬</span><span class="cn">Discord</span></button><button class="cloak-btn" onclick="applyCloak('Slack','💼','https://slack.com/favicon.ico')"><span class="ci">💼</span><span class="cn">Slack</span></button><button class="cloak-btn" onclick="applyCloak('Notion','📝','https://www.notion.so/images/favicon.ico')"><span class="ci">📝</span><span class="cn">Notion</span></button><button class="cloak-btn" onclick="applyCloak('GitHub','🐙','https://github.com/favicon.ico')"><span class="ci">🐙</span><span class="cn">GitHub</span></button><button class="cloak-btn" onclick="applyCloak('Outlook','📧','https://outlook.live.com/favicon.ico')"><span class="ci">📧</span><span class="cn">Outlook</span></button><button class="cloak-btn" onclick="applyCloak('OneDrive','☁️','https://onedrive.live.com/favicon.ico')"><span class="ci">☁️</span><span class="cn">OneDrive</span></button><button class="cloak-btn" onclick="applyCloak('Dropbox','📦','https://www.dropbox.com/favicon.ico')"><span class="ci">📦</span><span class="cn">Dropbox</span></button><button class="cloak-btn" onclick="applyCloak('Moodle','🎓','https://moodle.org/theme/image.php/moodleorg/theme/168/favicon')"><span class="ci">🎓</span><span class="cn">Moodle</span></button><button class="cloak-btn" onclick="applyCloak('Blackboard','⬛','https://www.blackboard.com/favicon.ico')"><span class="ci">⬛</span><span class="cn">Blackboard</span></button><button class="cloak-btn" onclick="applyCloak('Turnitin','📄','https://www.turnitin.com/favicon.ico')"><span class="ci">📄</span><span class="cn">Turnitin</span></button><button class="cloak-btn" onclick="applyCloak('Grammarly','✅','https://www.grammarly.com/favicon.ico')"><span class="ci">✅</span><span class="cn">Grammarly</span></button><button class="cloak-btn" onclick="applyCloak('Coursera','🎓','https://d3njjcbhbojbot.cloudfront.net/web/images/favicons/coursera-logo.png')"><span class="ci">🎓</span><span class="cn">Coursera</span></button><button class="cloak-btn" onclick="applyCloak('edX','📖','https://www.edx.org/favicon.ico')"><span class="ci">📖</span><span class="cn">edX</span></button><button class="cloak-btn" onclick="applyCloak('Spotify','🎵','https://open.spotify.com/favicon.ico')"><span class="ci">🎵</span><span class="cn">Spotify</span></button><button class="cloak-btn" onclick="applyCloak('Apple Music','🎶','https://music.apple.com/favicon.ico')"><span class="ci">🎶</span><span class="cn">Apple Music</span></button><button class="cloak-btn" onclick="applyCloak('YouTube','▶️','https://www.youtube.com/favicon.ico')"><span class="ci">▶️</span><span class="cn">YouTube</span></button><button class="cloak-btn" onclick="applyCloak('BBC News','📰','https://www.bbc.co.uk/favicon.ico')"><span class="ci">📰</span><span class="cn">BBC News</span></button><button class="cloak-btn" onclick="applyCloak('AP Classroom','🏫','https://apclassroom.collegeboard.org/favicon.ico')"><span class="ci">🏫</span><span class="cn">AP Classroom</span></button><button class="cloak-btn" onclick="applyCloak('College Board','🎓','https://www.collegeboard.org/favicon.ico')"><span class="ci">🎓</span><span class="cn">College Board</span></button><button class="cloak-btn" onclick="applyCloak('PowerSchool','🏫','https://www.powerschool.com/favicon.ico')"><span class="ci">🏫</span><span class="cn">PowerSchool</span></button><button class="cloak-btn" onclick="applyCloak('Canva','🎨','https://www.canva.com/favicon.ico')"><span class="ci">🎨</span><span class="cn">Canva</span></button><button class="cloak-btn" onclick="applyCloak('Figma','🖌️','https://www.figma.com/favicon.ico')"><span class="ci">🖌️</span><span class="cn">Figma</span></button><button class="cloak-btn" onclick="applyCloak('Replit','💻','https://replit.com/favicon.ico')"><span class="ci">💻</span><span class="cn">Replit</span></button><button class="cloak-btn" onclick="applyCloak('Wolfram Alpha','🔢','https://www.wolframalpha.com/favicon.ico')"><span class="ci">🔢</span><span class="cn">Wolfram Alpha</span></button><button class="cloak-btn" onclick="applyCloak('GeoGebra','📐','https://www.geogebra.org/favicon.ico')"><span class="ci">📐</span><span class="cn">GeoGebra</span></button><button class="cloak-btn" onclick="applyCloak('NASA','🚀','https://www.nasa.gov/favicon.ico')"><span class="ci">🚀</span><span class="cn">NASA</span></button><button class="cloak-btn" onclick="applyCloak('Britannica','📖','https://www.britannica.com/favicon.ico')"><span class="ci">📖</span><span class="cn">Britannica</span></button><button class="cloak-btn" onclick="applyCloak('Google Scholar','🎓','https://scholar.google.com/favicon.ico')"><span class="ci">🎓</span><span class="cn">Google Scholar</span></button><button class="cloak-btn" onclick="applyCloak('Google Translate','🌐','https://translate.google.com/favicon.ico')"><span class="ci">🌐</span><span class="cn">Google Translate</span></button><button class="cloak-btn" onclick="applyCloak('QuillBot','🪶','https://quillbot.com/favicon.ico')"><span class="ci">🪶</span><span class="cn">QuillBot</span></button><button class="cloak-btn" onclick="applyCloak('Purdue OWL','🦉','https://owl.purdue.edu/favicon.ico')"><span class="ci">🦉</span><span class="cn">Purdue OWL</span></button>
       </div>
       <div class="s-row-label" style="margin-bottom:4px;">Custom cloak title:</div>
       <div class="cloak-custom-row">
@@ -465,7 +491,7 @@ footer a:hover{color:var(--g);}
       <span class="dot"></span>
       <span class="hdr-status" id="onlineCount">ONLINE</span>
       <span class="cloak-indicator" id="cloakIndicatorHdr">NO CLOAK</span>
-      <button class="hdr-btn" onclick="toggleS()">⚙ SETTINGS</button>
+      <button class="hdr-btn" id="mongleHideBtn" onclick="toggleMongleHide()">👁️ MONGLE HIDE</button><button class="hdr-btn" onclick="toggleS()">⚙ SETTINGS</button>
     </div>
   </header>
 <div id="cloakToggleBox">
@@ -490,7 +516,7 @@ footer a:hover{color:var(--g);}
       <button class="cloak-q-btn" onclick="applyCloakQuick('Quizlet','📚','https://quizlet.com/favicon.ico')"><span class="cq-i">📚</span><span class="cq-n">Quizlet</span></button>
       <button class="cloak-q-btn" onclick="applyCloakQuick('Kahoot!','🎮','https://kahoot.com/favicon.ico')"><span class="cq-i">🎮</span><span class="cq-n">Kahoot!</span></button>
       <button class="cloak-q-btn" onclick="applyCloakQuick('Canvas','🖌️','https://du11hjcvx0ubn.cloudfront.net/dist/images/favicon-e10d657a73.ico')"><span class="cq-i">🖌️</span><span class="cq-n">Canvas</span></button>
-      <button class="cloak-q-btn" onclick="applyCloakQuick('Microsoft Teams','💬','https://statics.teams.cdn.office.net/evergreen-assets/apps/teams_favicon-32x32.png')"><span class="cq-i">💬</span><span class="cq-n">MS Teams</span></button>
+      <button class="cloak-q-btn" onclick="applyCloakQuick('Microsoft Teams','💬','https://statics.teams.cdn.office.net/evergreen-assets/apps/teams_favicon-32x32.png')"><span class="cq-i">💬</span><span class="cq-n">MS Teams</span></button><button class="cloak-q-btn" onclick="applyCloakQuick('Zoom','📹','https://st1.zoom.us/zoom.ico')"><span class="cq-i">📹</span><span class="cq-n">Zoom</span></button><button class="cloak-q-btn" onclick="applyCloakQuick('Discord','💬','https://discord.com/favicon.ico')"><span class="cq-i">💬</span><span class="cq-n">Discord</span></button><button class="cloak-q-btn" onclick="applyCloakQuick('Slack','💼','https://slack.com/favicon.ico')"><span class="cq-i">💼</span><span class="cq-n">Slack</span></button><button class="cloak-q-btn" onclick="applyCloakQuick('Notion','📝','https://www.notion.so/images/favicon.ico')"><span class="cq-i">📝</span><span class="cq-n">Notion</span></button><button class="cloak-q-btn" onclick="applyCloakQuick('GitHub','🐙','https://github.com/favicon.ico')"><span class="cq-i">🐙</span><span class="cq-n">GitHub</span></button><button class="cloak-q-btn" onclick="applyCloakQuick('Outlook','📧','https://outlook.live.com/favicon.ico')"><span class="cq-i">📧</span><span class="cq-n">Outlook</span></button><button class="cloak-q-btn" onclick="applyCloakQuick('OneDrive','☁️','https://onedrive.live.com/favicon.ico')"><span class="cq-i">☁️</span><span class="cq-n">OneDrive</span></button><button class="cloak-q-btn" onclick="applyCloakQuick('Dropbox','📦','https://www.dropbox.com/favicon.ico')"><span class="cq-i">📦</span><span class="cq-n">Dropbox</span></button><button class="cloak-q-btn" onclick="applyCloakQuick('Moodle','🎓','https://moodle.org/theme/image.php/moodleorg/theme/168/favicon')"><span class="cq-i">🎓</span><span class="cq-n">Moodle</span></button><button class="cloak-q-btn" onclick="applyCloakQuick('Blackboard','⬛','https://www.blackboard.com/favicon.ico')"><span class="cq-i">⬛</span><span class="cq-n">Blackboard</span></button><button class="cloak-q-btn" onclick="applyCloakQuick('Turnitin','📄','https://www.turnitin.com/favicon.ico')"><span class="cq-i">📄</span><span class="cq-n">Turnitin</span></button><button class="cloak-q-btn" onclick="applyCloakQuick('Grammarly','✅','https://www.grammarly.com/favicon.ico')"><span class="cq-i">✅</span><span class="cq-n">Grammarly</span></button><button class="cloak-q-btn" onclick="applyCloakQuick('Coursera','🎓','https://d3njjcbhbojbot.cloudfront.net/web/images/favicons/coursera-logo.png')"><span class="cq-i">🎓</span><span class="cq-n">Coursera</span></button><button class="cloak-q-btn" onclick="applyCloakQuick('Spotify','🎵','https://open.spotify.com/favicon.ico')"><span class="cq-i">🎵</span><span class="cq-n">Spotify</span></button><button class="cloak-q-btn" onclick="applyCloakQuick('YouTube','▶️','https://www.youtube.com/favicon.ico')"><span class="cq-i">▶️</span><span class="cq-n">YouTube</span></button><button class="cloak-q-btn" onclick="applyCloakQuick('BBC News','📰','https://www.bbc.co.uk/favicon.ico')"><span class="cq-i">📰</span><span class="cq-n">BBC News</span></button><button class="cloak-q-btn" onclick="applyCloakQuick('AP Classroom','🏫','https://apclassroom.collegeboard.org/favicon.ico')"><span class="cq-i">🏫</span><span class="cq-n">AP Classroom</span></button><button class="cloak-q-btn" onclick="applyCloakQuick('Canva','🎨','https://www.canva.com/favicon.ico')"><span class="cq-i">🎨</span><span class="cq-n">Canva</span></button><button class="cloak-q-btn" onclick="applyCloakQuick('Figma','🖌️','https://www.figma.com/favicon.ico')"><span class="cq-i">🖌️</span><span class="cq-n">Figma</span></button><button class="cloak-q-btn" onclick="applyCloakQuick('Replit','💻','https://replit.com/favicon.ico')"><span class="cq-i">💻</span><span class="cq-n">Replit</span></button><button class="cloak-q-btn" onclick="applyCloakQuick('NASA','🚀','https://www.nasa.gov/favicon.ico')"><span class="cq-i">🚀</span><span class="cq-n">NASA</span></button><button class="cloak-q-btn" onclick="applyCloakQuick('Britannica','📖','https://www.britannica.com/favicon.ico')"><span class="cq-i">📖</span><span class="cq-n">Britannica</span></button><button class="cloak-q-btn" onclick="applyCloakQuick('Google Scholar','🎓','https://scholar.google.com/favicon.ico')"><span class="cq-i">🎓</span><span class="cq-n">G.Scholar</span></button><button class="cloak-q-btn" onclick="applyCloakQuick('Google Translate','🌐','https://translate.google.com/favicon.ico')"><span class="cq-i">🌐</span><span class="cq-n">G.Translate</span></button>
     </div>
     <div style="font-size:9px;color:var(--dim);letter-spacing:1px;margin-top:4px;">Custom title:</div>
     <div class="cloak-custom-mini">
@@ -522,6 +548,10 @@ footer a:hover{color:var(--g);}
         <div class="apps-loading-text">FETCHING REPO CONTENTS...</div>
         <div class="apps-loading-bar"><div class="apps-loading-fill"></div></div>
       </div>
+    </div>
+    <div class="recent-sec" id="recentSec" style="display:none;">
+      <div class="sec-lbl">// RECENTLY OPENED</div>
+      <div class="recent-grid" id="recentGrid"></div>
     </div>
   </main>
 
@@ -794,7 +824,11 @@ const LAUNCH_MODES = {
   about_blank: 'about:blank',
   githack: 'githack link',
   newtab: 'new tab',
-  cloudflare: 'cloudflare proxy'
+  cloudflare: 'cloudflare proxy',
+  blob: 'blob url',
+  embed: 'embed tag',
+  popup: 'popup window',
+  history_mask: 'history mask'
 };
 
 function getLaunchMode(){
@@ -888,6 +922,26 @@ function initCloakBox(){
 }
 
 
+window.toggleMongleHide = function(){
+  const body = document.body;
+  const btn = document.getElementById('mongleHideBtn');
+  const isActive = body.classList.toggle('mongle-hide');
+  localStorage.setItem('mongle_hide', isActive ? '1' : '0');
+  if(btn) btn.textContent = isActive ? '👁️ MONGLE HIDE: ON' : '👁️ MONGLE HIDE';
+  if(btn) btn.style.borderColor = isActive ? 'var(--g)' : '#143820';
+  if(btn) btn.style.color = isActive ? 'var(--g)' : 'var(--dim)';
+};
+
+// Init mongle hide on load
+(function(){
+  if(localStorage.getItem('mongle_hide') === '1'){
+    document.body.classList.add('mongle-hide');
+    const btn = document.getElementById('mongleHideBtn');
+    if(btn){ btn.textContent = '👁️ MONGLE HIDE: ON'; btn.style.borderColor='var(--g)'; btn.style.color='var(--g)'; }
+  }
+})();
+
+
 function updateLaunchModeUI(mode){
   const label = LAUNCH_MODES[mode] || mode;
   const status = document.getElementById('launchModeStatus');
@@ -974,154 +1028,92 @@ function initCloak(){
   updateCloakUI(t,f);
 }
 
-function buildCloakedWindow(innerHtml, cloakTitle, cloakFavicon){
-  const w=window.open('about:blank','_blank');
+function buildCloakedWindow(innerHtml, cloakTitle, cloakFavicon, targetWindow){
+  const w = targetWindow || window.open('about:blank','_blank');
   if(!w) return null;
   const faviconTag = cloakFavicon
     ? `<link id="wfav" rel="icon" href="${cloakFavicon}">`
     : `<link id="wfav" rel="icon" href="data:,">`;
+  const hideActive = localStorage.getItem('mongle_hide') === '1';
+
   w.document.write(`<!DOCTYPE html><html><head>
     <title>${cloakTitle||'New Tab'}</title>${faviconTag}
-    <style>*{margin:0;padding:0;}html,body,iframe{width:100%;height:100%;display:block;overflow:hidden;}/* Minimizeable Cloak Toggle Box */
-#cloakToggleBox{
-  position:fixed;
-  top:60px;
-  left:14px;
-  z-index:600;
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:6px;
-  padding:10px 12px;
-  min-width:180px;
-  max-width:260px;
-  box-shadow:0 0 20px rgba(0,255,65,0.08);
-  transition:all 0.25s ease;
-}
-#cloakToggleBox.collapsed{
-  min-width:auto;
-  max-width:none;
-  padding:6px 10px;
-}
-#cloakToggleBox.collapsed .cloak-body{display:none;}
-.cloak-header{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  cursor:pointer;
-  user-select:none;
-}
-.cloak-header-lbl{
-  font-family:'VT323',monospace;
-  font-size:16px;
-  color:var(--g);
-  text-shadow:0 0 6px rgba(0,255,65,0.3);
-  letter-spacing:1px;
-  display:flex;
-  align-items:center;
-  gap:6px;
-}
-.cloak-toggle-btn{
-  background:transparent;
-  border:1px solid var(--border);
-  color:var(--dim);
-  font-family:'Share Tech Mono',monospace;
-  font-size:11px;
-  padding:2px 7px;
-  cursor:pointer;
-  border-radius:3px;
-  transition:all 0.15s;
-}
-.cloak-toggle-btn:hover{border-color:var(--g);color:var(--g);}
-.cloak-body{
-  margin-top:10px;
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-}
-.cloak-quick-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:4px;
-  max-height:200px;
-  overflow-y:auto;
-  padding-right:2px;
-}
-.cloak-quick-grid::-webkit-scrollbar{width:3px;}
-.cloak-quick-grid::-webkit-scrollbar-track{background:transparent;}
-.cloak-quick-grid::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
-.cloak-q-btn{
-  background:#07100a;
-  border:1px solid var(--border);
-  color:var(--gd);
-  font-family:'Share Tech Mono',monospace;
-  font-size:10px;
-  padding:5px 4px;
-  cursor:pointer;
-  border-radius:3px;
-  transition:all 0.15s;
-  text-align:left;
-  display:flex;
-  align-items:center;
-  gap:4px;
-}
-.cloak-q-btn:hover{border-color:var(--gd);background:#0a1a0d;box-shadow:0 0 6px var(--glow);}
-.cloak-q-btn.active{border-color:var(--g);background:#0a1a0d;box-shadow:0 0 8px var(--glow);}
-.cloak-q-btn .cq-i{font-size:13px;}
-.cloak-q-btn .cq-n{color:var(--g);font-size:10px;}
-.cloak-custom-mini{
-  display:flex;
-  gap:4px;
-  margin-top:2px;
-}
-.cloak-custom-mini input{
-  flex:1;
-  background:#07100a;
-  border:1px solid #143820;
-  color:var(--g);
-  font-family:'Share Tech Mono',monospace;
-  font-size:10px;
-  padding:5px 7px;
-  outline:none;
-  border-radius:3px;
-}
-.cloak-custom-mini input:focus{border-color:var(--g);}
-.cloak-custom-mini button{
-  background:var(--gdark);
-  border:1px solid var(--gd);
-  color:var(--g);
-  font-family:'Share Tech Mono',monospace;
-  font-size:10px;
-  padding:5px 8px;
-  cursor:pointer;
-  border-radius:3px;
-  white-space:nowrap;
-}
-.cloak-mini-status{
-  font-size:9px;
-  color:#1a7a2a;
-  letter-spacing:1px;
-  min-height:12px;
-}
-.cloak-mini-clear{
-  background:transparent;
-  border:1px solid #143820;
-  color:var(--dim);
-  font-family:'Share Tech Mono',monospace;
-  font-size:9px;
-  padding:4px 8px;
-  cursor:pointer;
-  border-radius:3px;
-  transition:all 0.15s;
-  margin-top:2px;
-}
-.cloak-mini-clear:hover{border-color:#ff4444;color:#ff4444;}
-</style>
+    <style>*{margin:0;padding:0;}html,body,iframe,embed{width:100%;height:100%;display:block;overflow:hidden;}</style>
     </head><body>${innerHtml}</body></html>`);
   w.document.close();
+
+  // Inject toggle button + hide logic via DOM (more reliable than inline script in document.write)
+  const s = w.document.createElement('script');
+  s.textContent = `
+(function(){
+  var hideState = ${hideActive ? 'true' : 'false'};
+  var opener = window.opener;
+  function getStore(){
+    try { return opener && opener.localStorage ? opener.localStorage : localStorage; } catch(e){ return localStorage; }
+  }
+  function readHide(){ try { return getStore().getItem('mongle_hide') === '1'; } catch(e){ return false; } }
+  function writeHide(v){ try { getStore().setItem('mongle_hide', v ? '1' : '0'); } catch(e){} }
+  function showPopup(){
+    var popup = document.createElement('div');
+    popup.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:10000;background:rgba(3,8,3,0.95);font-family:VT323,monospace;font-size:32px;color:#00ff41;text-shadow:0 0 20px #00ff41;letter-spacing:3px;';
+    popup.textContent = 'MONGLE HUB CONNECTED';
+    document.body.appendChild(popup);
+    setTimeout(function(){
+      popup.style.transition = 'opacity 0.5s';
+      popup.style.opacity = '0';
+      setTimeout(function(){ popup.remove(); applyOverlay(); }, 500);
+    }, 5000);
+  }
+  function applyOverlay(){
+    var ov = document.getElementById('mongleHideOverlay');
+    if(!ov){
+      ov = document.createElement('div');
+      ov.id = 'mongleHideOverlay';
+      ov.style.cssText = 'position:fixed;inset:0;background:#030803;z-index:9999;pointer-events:none;';
+      document.body.appendChild(ov);
+    }
+  }
+  function removeOverlay(){
+    var ov = document.getElementById('mongleHideOverlay');
+    if(ov) ov.remove();
+  }
+  function updateBtn(){
+    var btn = document.getElementById('mongleHideToggle');
+    if(btn){
+      btn.textContent = hideState ? '👁️ MONGLE HIDE: ON' : '👁️ MONGLE HIDE';
+      btn.style.color = hideState ? '#00ff41' : '#1a5a2a';
+      btn.style.borderColor = hideState ? '#00ff41' : '#143820';
+    }
+  }
+  function toggleHide(){
+    hideState = !hideState;
+    writeHide(hideState);
+    if(hideState){ applyOverlay(); } else { removeOverlay(); }
+    updateBtn();
+  }
+  function sync(){
+    var ns = readHide();
+    if(ns !== hideState){ hideState = ns; if(hideState){ applyOverlay(); } else { removeOverlay(); } updateBtn(); }
+  }
+  function init(){
+    var btn = document.createElement('button');
+    btn.id = 'mongleHideToggle';
+    btn.style.cssText = 'position:fixed;top:8px;right:8px;z-index:10001;background:#07100a;border:1px solid #143820;color:#1a5a2a;font-family:"Share Tech Mono",monospace;font-size:11px;padding:5px 10px;cursor:pointer;border-radius:3px;letter-spacing:1px;transition:all 0.15s;';
+    btn.textContent = hideState ? '👁️ MONGLE HIDE: ON' : '👁️ MONGLE HIDE';
+    btn.style.color = hideState ? '#00ff41' : '#1a5a2a';
+    btn.style.borderColor = hideState ? '#00ff41' : '#143820';
+    btn.onmouseover = function(){this.style.borderColor='#00ff41';this.style.color='#00ff41';this.style.boxShadow='0 0 8px rgba(0,255,65,0.18)';};
+    btn.onmouseout = function(){this.style.borderColor='#143820';this.style.color='#1a5a2a';this.style.boxShadow='none';};
+    btn.onclick = toggleHide;
+    document.body.appendChild(btn);
+    if(hideState) showPopup();
+    setInterval(sync, 500);
+  }
+  init();
+})();`;
+  w.document.body.appendChild(s);
   return w;
 }
-
 function openProxy(url){
   const cTitle=getCloakTitle();
   const cFav=getCloakFavicon();
@@ -1133,6 +1125,7 @@ function openAny(url){
   const mode=getLaunchMode();
   const cTitle=getCloakTitle();
   const cFav=getCloakFavicon();
+
   if(mode==='cloudflare'){
     const worker=getCfWorker();
     if(!worker){alert('Configure Cloudflare Worker URL in Settings first.');return;}
@@ -1141,15 +1134,97 @@ function openAny(url){
     window.open(cfUrl,'_blank');
     return;
   }
+
   if(mode==='about_blank'){
     openProxy(url);
+    return;
+  }
+
+  if(mode==='blob'){
+    fetch(url).then(r=>r.blob()).then(blob=>{
+      const blobUrl = URL.createObjectURL(blob);
+      const inner = `<iframe src="${blobUrl}" style="width:100%;height:100%;border:none;" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"></iframe>`;
+      buildCloakedWindow(inner, cTitle||'New Tab', cFav);
+    }).catch(()=>{ openProxy(url); });
+    return;
+  }
+
+  if(mode==='embed'){
+    const inner = `<embed src="${url}" style="width:100%;height:100%;border:none;" allowfullscreen></embed>`;
+    buildCloakedWindow(inner, cTitle||'New Tab', cFav);
+    return;
+  }
+
+  if(mode==='popup'){
+    const feat = 'width=1200,height=800,menubar=no,toolbar=no,location=no,status=no,scrollbars=yes,resizable=yes';
+    const w = window.open('about:blank', '_blank', feat);
+    if(!w) return;
+    const faviconTag = cFav ? `<link rel="icon" href="${cFav}">` : '';
+    w.document.write(`<!DOCTYPE html><html><head><title>${cTitle||'New Tab'}</title>${faviconTag}</head><body style="margin:0;padding:0;"><iframe src="${url}" style="width:100%;height:100vh;border:none;" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"></iframe></body></html>`);
+    w.document.close();
+    return;
+  }
+
+  if(mode==='history_mask'){
+    const w = window.open('about:blank', '_blank');
+    if(!w) return;
+    try { w.history.pushState({}, cTitle||'New Tab', '/'); } catch(e){}
+    const inner = `<iframe src="${url}" style="width:100%;height:100%;border:none;" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"></iframe>`;
+    buildCloakedWindow(inner, cTitle||'New Tab', cFav, w);
+    return;
+  }
+
+  if(mode==='data_uri'){
+    fetch(url).then(r=>r.text()).then(text=>{
+      const dataUri = 'data:text/html;charset=utf-8,' + encodeURIComponent(text);
+      const inner = `<iframe src="${dataUri}" style="width:100%;height:100%;border:none;" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"></iframe>`;
+      buildCloakedWindow(inner, cTitle||'New Tab', cFav);
+    }).catch(()=>{ openProxy(url); });
+    return;
+  }
+
+  if(mode==='srcdoc'){
+    fetch(url).then(r=>r.text()).then(text=>{
+      const inner = `<iframe srcdoc="${text.replace(/"/g, '&quot;')}" style="width:100%;height:100%;border:none;" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"></iframe>`;
+      buildCloakedWindow(inner, cTitle||'New Tab', cFav);
+    }).catch(()=>{ openProxy(url); });
+    return;
+  }
+
+  if(mode==='sandbox_strict'){
+    const inner = `<iframe src="${url}" style="width:100%;height:100%;border:none;" sandbox="allow-same-origin allow-forms"></iframe>`;
+    buildCloakedWindow(inner, cTitle||'New Tab', cFav);
+    return;
+  }
+
+  if(mode==='window_replace'){
+    window.location.replace(url);
+    return;
+  }
+
+  if(mode==='noopener'){
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.click();
+    return;
+  }
+
+  if(mode==='download'){
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'mongle_app.html';
+    a.click();
+    return;
+  }
+
+  // newtab or fallback
+  if(cTitle){
+    const iframeHtml=`<iframe src="${url}" style="width:100%;height:100%;border:none;" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"></iframe>`;
+    buildCloakedWindow(iframeHtml, cTitle, cFav);
   } else {
-    if(cTitle){
-      const iframeHtml=`<iframe src="${url}" style="width:100%;height:100%;border:none;" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"></iframe>`;
-      buildCloakedWindow(iframeHtml, cTitle, cFav);
-    } else {
-      window.open(url,'_blank');
-    }
+    window.open(url,'_blank');
   }
 }
 
@@ -1160,6 +1235,7 @@ function openGH(file){
   const mode=getLaunchMode();
   const cTitle=getCloakTitle();
   const cFav=getCloakFavicon();
+
   if(mode==='cloudflare'){
     const worker=getCfWorker();
     if(!worker){alert('Configure Cloudflare Worker URL in Settings first.');return;}
@@ -1168,23 +1244,117 @@ function openGH(file){
     window.open(cfUrl,'_blank');
     return;
   }
+
   if(mode==='about_blank'){
     const iframeHtml=`<iframe src="${url}" style="width:100%;height:100%;border:none;" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"></iframe>`;
     buildCloakedWindow(iframeHtml, cTitle||'New Tab', cFav);
-  } else if(mode==='githack'){
+    return;
+  }
+
+  if(mode==='blob'){
+    fetch(url).then(r=>r.blob()).then(blob=>{
+      const blobUrl = URL.createObjectURL(blob);
+      const inner = `<iframe src="${blobUrl}" style="width:100%;height:100%;border:none;" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"></iframe>`;
+      buildCloakedWindow(inner, cTitle||'New Tab', cFav);
+    }).catch(()=>{
+      const iframeHtml=`<iframe src="${url}" style="width:100%;height:100%;border:none;" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"></iframe>`;
+      buildCloakedWindow(iframeHtml, cTitle||'New Tab', cFav);
+    });
+    return;
+  }
+
+  if(mode==='embed'){
+    const inner = `<embed src="${url}" style="width:100%;height:100%;border:none;" allowfullscreen></embed>`;
+    buildCloakedWindow(inner, cTitle||'New Tab', cFav);
+    return;
+  }
+
+  if(mode==='popup'){
+    const feat = 'width=1200,height=800,menubar=no,toolbar=no,location=no,status=no,scrollbars=yes,resizable=yes';
+    const w = window.open('about:blank', '_blank', feat);
+    if(!w) return;
+    const faviconTag = cFav ? `<link rel="icon" href="${cFav}">` : '';
+    w.document.write(`<!DOCTYPE html><html><head><title>${cTitle||'New Tab'}</title>${faviconTag}</head><body style="margin:0;padding:0;"><iframe src="${url}" style="width:100%;height:100vh;border:none;" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"></iframe></body></html>`);
+    w.document.close();
+    return;
+  }
+
+  if(mode==='history_mask'){
+    const w = window.open('about:blank', '_blank');
+    if(!w) return;
+    try { w.history.pushState({}, cTitle||'New Tab', '/'); } catch(e){}
+    const inner = `<iframe src="${url}" style="width:100%;height:100%;border:none;" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"></iframe>`;
+    buildCloakedWindow(inner, cTitle||'New Tab', cFav, w);
+    return;
+  }
+
+  if(mode==='data_uri'){
+    fetch(url).then(r=>r.text()).then(text=>{
+      const dataUri = 'data:text/html;charset=utf-8,' + encodeURIComponent(text);
+      const inner = `<iframe src="${dataUri}" style="width:100%;height:100%;border:none;" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"></iframe>`;
+      buildCloakedWindow(inner, cTitle||'New Tab', cFav);
+    }).catch(()=>{
+      const iframeHtml=`<iframe src="${url}" style="width:100%;height:100%;border:none;" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"></iframe>`;
+      buildCloakedWindow(iframeHtml, cTitle||'New Tab', cFav);
+    });
+    return;
+  }
+
+  if(mode==='srcdoc'){
+    fetch(url).then(r=>r.text()).then(text=>{
+      const inner = `<iframe srcdoc="${text.replace(/"/g, '&quot;')}" style="width:100%;height:100%;border:none;" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"></iframe>`;
+      buildCloakedWindow(inner, cTitle||'New Tab', cFav);
+    }).catch(()=>{
+      const iframeHtml=`<iframe src="${url}" style="width:100%;height:100%;border:none;" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"></iframe>`;
+      buildCloakedWindow(iframeHtml, cTitle||'New Tab', cFav);
+    });
+    return;
+  }
+
+  if(mode==='sandbox_strict'){
+    const inner = `<iframe src="${url}" style="width:100%;height:100%;border:none;" sandbox="allow-same-origin allow-forms"></iframe>`;
+    buildCloakedWindow(inner, cTitle||'New Tab', cFav);
+    return;
+  }
+
+  if(mode==='window_replace'){
+    window.location.replace(url);
+    return;
+  }
+
+  if(mode==='noopener'){
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.click();
+    return;
+  }
+
+  if(mode==='download'){
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'mongle_app.html';
+    a.click();
+    return;
+  }
+
+  if(mode==='githack'){
     if(cTitle){
       const iframeHtml=`<iframe src="${url}" style="width:100%;height:100%;border:none;" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"></iframe>`;
       buildCloakedWindow(iframeHtml, cTitle, cFav);
     } else {
       window.open(url,'_blank');
     }
+    return;
+  }
+
+  // newtab or fallback
+  if(cTitle){
+    const iframeHtml=`<iframe src="${url}" style="width:100%;height:100%;border:none;" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"></iframe>`;
+    buildCloakedWindow(iframeHtml, cTitle, cFav);
   } else {
-    if(cTitle){
-      const iframeHtml=`<iframe src="${url}" style="width:100%;height:100%;border:none;" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"></iframe>`;
-      buildCloakedWindow(iframeHtml, cTitle, cFav);
-    } else {
-      window.open(url,'_blank');
-    }
+    window.open(url,'_blank');
   }
 }
 
@@ -1344,6 +1514,119 @@ async function fetchAppsFromRepo(){
     if(label) label.innerHTML = `// APPS &nbsp; ${fallback.length} INSTALLED (OFFLINE)`;
   }
 }
+
+
+// ===== KEYBOARD NAVIGATION =====
+let kbIndex = -1;
+let kbCards = [];
+function updateKbCards(){ kbCards = Array.from(document.querySelectorAll('.app-card:not([style*="display: none"])')); }
+document.addEventListener('keydown', function(e){
+  if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  // Panic key: Escape
+  if(e.key === 'Escape'){
+    e.preventDefault();
+    panicMode();
+    return;
+  }
+  // Focus search: /
+  if(e.key === '/' && !e.ctrlKey && !e.altKey && !e.metaKey){
+    e.preventDefault();
+    const s = document.getElementById('searchInput');
+    if(s){ s.focus(); s.select(); }
+    return;
+  }
+  // Toggle settings: S
+  if(e.key === 's' || e.key === 'S'){
+    if(e.ctrlKey || e.altKey || e.metaKey) return;
+    e.preventDefault();
+    toggleS();
+    return;
+  }
+  // Toggle mongle hide: H
+  if(e.key === 'h' || e.key === 'H'){
+    if(e.ctrlKey || e.altKey || e.metaKey) return;
+    e.preventDefault();
+    toggleMongleHide();
+    return;
+  }
+  // Arrow nav
+  if(!kbCards.length) updateKbCards();
+  if(!kbCards.length) return;
+  const cols = window.innerWidth <= 480 ? 1 : (window.innerWidth <= 900 ? 2 : 4);
+  if(e.key === 'ArrowRight'){ e.preventDefault(); kbIndex = Math.min(kbIndex + 1, kbCards.length - 1); }
+  else if(e.key === 'ArrowLeft'){ e.preventDefault(); kbIndex = Math.max(kbIndex - 1, 0); }
+  else if(e.key === 'ArrowDown'){ e.preventDefault(); kbIndex = Math.min(kbIndex + cols, kbCards.length - 1); }
+  else if(e.key === 'ArrowUp'){ e.preventDefault(); kbIndex = Math.max(kbIndex - cols, 0); }
+  else if(e.key === 'Enter' && kbIndex >= 0 && kbCards[kbIndex]){
+    e.preventDefault();
+    kbCards[kbIndex].click();
+    return;
+  } else { return; }
+  kbCards.forEach(c => c.classList.remove('keyboard-focus'));
+  if(kbCards[kbIndex]){
+    kbCards[kbIndex].classList.add('keyboard-focus');
+    kbCards[kbIndex].scrollIntoView({behavior:'smooth', block:'center'});
+  }
+});
+// Rebuild card list when apps load
+const _origFetch = fetchAppsFromRepo;
+window.fetchAppsFromRepo = async function(){
+  await _origFetch.apply(this, arguments);
+  updateKbCards();
+  renderRecent();
+};
+
+// ===== PANIC MODE =====
+function panicMode(){
+  // Instantly apply strongest cloak
+  applyCloak('Google Classroom', 'GC', 'https://classroom.google.com/favicon.ico');
+  document.title = 'Google Classroom';
+  // Close settings if open
+  document.getElementById('sOverlay').classList.remove('open');
+  // Visual flash
+  const flash = document.createElement('div');
+  flash.style.cssText = 'position:fixed;inset:0;background:#fff;z-index:100000;opacity:1;transition:opacity 0.3s;pointer-events:none;';
+  document.body.appendChild(flash);
+  requestAnimationFrame(() => { flash.style.opacity = '0'; setTimeout(() => flash.remove(), 300); });
+}
+
+// ===== RECENT APPS =====
+function addRecent(appName, appFile){
+  let recents = JSON.parse(localStorage.getItem('mongle_recent') || '[]');
+  recents = recents.filter(r => r.file !== appFile);
+  recents.unshift({ name: appName, file: appFile, time: Date.now() });
+  if(recents.length > 5) recents = recents.slice(0, 5);
+  localStorage.setItem('mongle_recent', JSON.stringify(recents));
+  renderRecent();
+}
+function renderRecent(){
+  const sec = document.getElementById('recentSec');
+  const grid = document.getElementById('recentGrid');
+  if(!sec || !grid) return;
+  const recents = JSON.parse(localStorage.getItem('mongle_recent') || '[]');
+  if(!recents.length){ sec.style.display = 'none'; return; }
+  sec.style.display = 'block';
+  grid.innerHTML = '';
+  recents.forEach(r => {
+    const ago = Math.floor((Date.now() - r.time) / 60000);
+    const timeStr = ago < 1 ? 'just now' : ago < 60 ? ago + 'm ago' : Math.floor(ago/60) + 'h ago';
+    const card = document.createElement('div');
+    card.className = 'recent-card';
+    card.innerHTML = `<div class="rc-dot"></div><div class="rc-name">${r.name}</div><div class="rc-time">${timeStr}</div>`;
+    card.onclick = () => openGH(r.file);
+    grid.appendChild(card);
+  });
+}
+// Hook into openGH to track recents
+const _origOpenGH = openGH;
+window.openGH = function(file){
+  const name = file.replace(/\.html$/i, '').replace(/\([0-9]+\)/g, '').replace(/\s+/g, ' ').trim();
+  addRecent(name, file);
+  return _origOpenGH.apply(this, arguments);
+};
+// Render on load
+renderRecent();
+
 </script>
 </body>
 </html>
