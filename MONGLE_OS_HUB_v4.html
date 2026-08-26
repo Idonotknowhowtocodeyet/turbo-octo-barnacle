@@ -298,6 +298,7 @@ footer a:hover{color:var(--g);}
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
 <div id="loadOverlay">
@@ -563,6 +564,24 @@ footer a:hover{color:var(--g);}
     <span class="footer-clock" id="footerClock"></span>
   </footer>
 </div>
+<script>
+// ═══════════════════════════════════════════════════
+//  ★ EASY UPDATES — Just edit the lines below
+//  tag options: NEW | FIX | UPDATE | REMOVED
+//  Bump "version" to force the box to show again
+// ═══════════════════════════════════════════════════
+window.HUB_UPDATES = {
+  version: "1.2",
+  items: [
+     { date: "2026-08-25", tag: "NEW",    text: "bloodmony fixed and now scales to your screen" },
+    { date: "2026-08-25", tag: "NEW",    text: "Cloudflare proxy added to gaming site" },
+    { date: "2026-08-25", tag: "UPDATE", text: "Hub now shows this changelog on boot" },
+    { date: "2026-08-24", tag: "NEW",    text: "15 new cloak presets (Discord, Slack, etc.)" },
+    { date: "2026-08-23", tag: "FIX",    text: "Keyboard nav glitch in app grid patched" },
+    { date: "2026-08-22", tag: "NEW",    text: "Panic mode — press ESC to instantly cloak" },
+  ]
+};
+</script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc, serverTimestamp, collection, query, orderBy, limit, getDocs }
@@ -705,23 +724,34 @@ async function boot(){
 
   setProgress(70,'LOADING VERSION...');
   try{
-    const vSnap=await Promise.race([getDoc(doc(db,'system','version')),new Promise((_,r)=>setTimeout(()=>r(new Error('t')),400))]);
-    if(vSnap.exists&&vSnap.exists()){
-      const d=vSnap.data();
-      const badge=document.getElementById('vBadge');
-      if(badge)badge.textContent='v'+(d.version||'1.0');
-      document.title='MONGLE_OS v'+(d.version||'1.0');
-      if(d.changelog&&d.changelog.trim()){
-        document.getElementById('clVer').textContent='v'+(d.version||'');
-        document.getElementById('clDate').textContent=d.date||'';
-        document.getElementById('clBody').textContent=d.changelog;
-        const seen = localStorage.getItem('mongle_seen_changelog');
-        if(seen !== 'v'+(d.version||'')){
-          document.getElementById('clModal').style.display='flex';
-        }
+    const d = window.HUB_UPDATES || {version:'1.0', items:[]};
+    const badge=document.getElementById('vBadge');
+    if(badge)badge.textContent='v'+(d.version||'1.0');
+    document.title='MONGLE_OS v'+(d.version||'1.0');
+    if(d.items && d.items.length){
+      document.getElementById('clVer').textContent='v'+(d.version||'');
+      const today = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}).toUpperCase();
+      document.getElementById('clDate').textContent = today;
+      const body = document.getElementById('clBody');
+      if(body){
+        body.style.whiteSpace = 'normal';
+        body.innerHTML = '<div class="update-list">' + d.items.map(function(it){
+          var tagClass = (it.tag||'new').toLowerCase();
+          return '<div class="update-item">' +
+            '<span class="update-tag ' + tagClass + '">' + (it.tag||'NEW') + '</span>' +
+            '<div>' +
+              '<div class="update-date">' + (it.date||'') + '</div>' +
+              '<div class="update-text">' + (it.text||'') + '</div>' +
+            '</div>' +
+          '</div>';
+        }).join('') + '</div>';
+      }
+      const seen = localStorage.getItem('mongle_seen_changelog');
+      if(seen !== 'v'+(d.version||'')){
+        document.getElementById('clModal').style.display='flex';
       }
     }
-  }catch(e){}
+  }catch(e){console.error('updates err',e);}
 
   
   const info = await infoPromise;
@@ -1038,7 +1068,19 @@ function buildCloakedWindow(innerHtml, cloakTitle, cloakFavicon, targetWindow){
 
   w.document.write(`<!DOCTYPE html><html><head>
     <title>${cloakTitle||'New Tab'}</title>${faviconTag}
-    <style>*{margin:0;padding:0;}html,body,iframe,embed{width:100%;height:100%;display:block;overflow:hidden;}</style>
+    <style>*{margin:0;padding:0;}html,body,iframe,embed{width:100%;height:100%;display:block;overflow:hidden;}
+/* ══ UPDATE LIST ══ */
+.update-list{display:flex;flex-direction:column;gap:8px;}
+.update-item{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;background:rgba(0,255,65,0.04);border:1px solid var(--border);border-radius:4px;transition:all .15s;}
+.update-item:hover{background:rgba(0,255,65,0.08);border-color:var(--gd);}
+.update-tag{font-size:9px;font-weight:bold;padding:2px 6px;border-radius:3px;letter-spacing:1px;flex-shrink:0;margin-top:1px;}
+.update-tag.new{background:rgba(0,255,65,0.15);color:var(--g);border:1px solid var(--gdark);}
+.update-tag.fix{background:rgba(255,200,0,0.12);color:#ccaa00;border:1px solid #554400;}
+.update-tag.update{background:rgba(0,150,255,0.12);color:#44aaff;border:1px solid #113355;}
+.update-tag.removed{background:rgba(255,50,50,0.12);color:#ff4444;border:1px solid #441111;}
+.update-text{font-size:12px;color:#2ab04a;line-height:1.5;}
+.update-date{font-size:9px;color:var(--dim);letter-spacing:1px;margin-bottom:2px;}
+</style>
     </head><body>${innerHtml}</body></html>`);
   w.document.close();
 
