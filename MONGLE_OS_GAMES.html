@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>MONGLE_OS</title>
+<link id="fav" rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23000' width='100' height='100'/%3E%3Ctext y='75' x='50' text-anchor='middle' fill='%2300ff41' font-family='monospace' font-size='60' font-weight='bold'%3EM%3C/text%3E%3C/svg%3E">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+:root{--g:#00ff41;--bg:#000}
+*{box-sizing:border-box}
+body,html{margin:0;padding:0;width:100%;height:100%;background:#000;color:var(--g);font-family:'Share Tech Mono',monospace;overflow:hidden}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#0a0a0a}::-webkit-scrollbar-thumb{background:#00ff4140;border-radius:3px}::-webkit-scrollbar-thumb:hover{background:var(--g)}
+
+/* BOOT */
+#boot{position:fixed;inset:0;background:#000;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center}
+#boot h1{font-size:58px;letter-spacing:12px;text-shadow:0 0 30px #00ff41,0 0 60px #00ff4155;margin:0;animation:gin .6s ease both}
+#bs{color:#1a3a1a;letter-spacing:6px;font-size:11px;margin-top:14px;animation:fup .8s .3s both}
+#bb{width:220px;height:2px;background:#0a0a0a;border-radius:1px;overflow:hidden;margin-top:12px;animation:fup .8s .5s both}
+#bf{height:100%;background:var(--g);width:0;animation:bload 1.5s .5s ease forwards;box-shadow:0 0 8px var(--g)}
+@keyframes gin{0%{opacity:0;transform:scaleX(1.08);filter:blur(8px)}100%{opacity:1;transform:scaleX(1);filter:none}}
+@keyframes fup{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bload{to{width:100%}}
+
+/* APP */
+#app{display:none;height:100vh;flex-direction:column}
+#app::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,65,.011) 2px,rgba(0,255,65,.011) 4px);pointer-events:none;z-index:9999}
+
+/* NAV */
+nav{display:flex;align-items:center;gap:10px;padding:9px 14px;background:rgba(4,4,4,.97);border-bottom:1px solid rgba(0,255,65,.09);position:sticky;top:0;z-index:200;backdrop-filter:blur(16px);flex-wrap:wrap}
+.brand{font-size:19px;font-weight:bold;letter-spacing:3px;text-shadow:0 0 10px #00ff4166;white-space:nowrap;flex-shrink:0}
+.brand em{font-style:normal;font-size:9px;color:#2a2a2a;letter-spacing:2px;margin-left:7px;vertical-align:middle}
+#search{flex-grow:1;min-width:140px;max-width:680px;background:#000;border:1px solid #1e1e1e;color:var(--g);padding:8px 13px;outline:none;border-radius:4px;font-family:inherit;font-size:12px;transition:.15s}
+#search:focus{border-color:#00ff4155;box-shadow:0 0 10px #00ff4112}
+.nav-right{display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--g);animation:pulse 2s infinite;display:inline-block}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+#online-txt{font-size:11px;color:#444}
+#total-txt{font-size:10px;color:#2a2a2a}
+.nbtn{background:#0a0a0a;border:1px solid #1e1e1e;color:var(--g);padding:7px 11px;cursor:pointer;border-radius:4px;font-family:inherit;font-size:10px;letter-spacing:1px;transition:.15s;white-space:nowrap}
+.nbtn:hover{border-color:#00ff4155;background:#0d1a0d}
+.nbtn.on{border-color:var(--g);background:#091509}
+
+/* TAG BAR */
+#tag-bar{display:flex;align-items:center;gap:6px;padding:6px 14px;background:#030303;border-bottom:1px solid #0d0d0d;flex-wrap:wrap;min-height:34px}
+.tag-chip{background:#0a0a0a;border:1px solid #1a1a1a;color:#444;padding:3px 9px;border-radius:10px;font-size:9px;letter-spacing:1px;cursor:pointer;transition:.15s;font-family:inherit}
+.tag-chip:hover{border-color:#00ff4133;color:#888}
+.tag-chip.on{border-color:var(--g);color:var(--g);background:#091509}
+
+/* GRID */
+#grid-wrap{flex-grow:1;overflow-y:auto;padding:14px}
+#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;align-content:start}
+
+/* CARD */
+.card{background:#070707;border:1px solid #1a1a1a;padding:12px 11px 8px;text-align:center;cursor:pointer;border-radius:5px;transition:all .13s;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:76px;user-select:none;animation:cin .18s ease both;position:relative}
+@keyframes cin{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.card:hover{border-color:var(--g);background:#09180a;transform:translateY(-2px);box-shadow:0 4px 16px #00ff4112}
+.card.fav{border-color:#ff475744;background:#120606}
+.card.fav:hover{border-color:#ff4757;box-shadow:0 4px 16px #ff475722}
+.card.fav .cn{color:#ff6b7a}
+.cn{font-weight:bold;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;line-height:1.35}
+.card-tags{display:flex;flex-wrap:wrap;gap:3px;justify-content:center;margin-top:5px}
+.card-tag{background:#0d1a0d;border:1px solid #1e3a1e;color:#00ff4166;padding:1px 5px;border-radius:6px;font-size:8px;letter-spacing:.5px}
+.card-bot{display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:6px;padding-top:5px;border-top:1px solid #0d0d0d}
+.plays{font-size:8px;color:#1e3a1e}
+.hbtn{background:none;border:none;cursor:pointer;font-size:13px;color:#222;padding:0;line-height:1;transition:transform .15s}
+.hbtn:hover{transform:scale(1.3)}
+.hbtn.on{color:#ff4757}
+
+/* SENTINEL */
+#sentinel{height:40px;grid-column:1/-1}
+
+/* MSG */
+.msg{grid-column:1/-1;text-align:center;padding:50px 20px;font-size:12px;color:#2a2a2a;letter-spacing:2px}
+.msg b{display:block;font-size:20px;margin-bottom:10px;color:#333}
+
+/* LEADERBOARD */
+#lb{position:fixed;top:0;left:-380px;width:360px;height:100vh;background:rgba(4,4,4,.97);border-right:1px solid rgba(0,255,65,.12);z-index:500;display:flex;flex-direction:column;transition:left .25s cubic-bezier(.4,0,.2,1);backdrop-filter:blur(24px)}
+#lb.open{left:0}
+.lb-head{padding:14px 16px;border-bottom:1px solid #111;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.lb-head h3{margin:0;font-size:13px;letter-spacing:3px;color:var(--g)}
+.lb-close{background:none;border:none;color:#444;font-size:18px;cursor:pointer;line-height:1}
+.lb-close:hover{color:var(--g)}
+.lb-tabs{display:flex;border-bottom:1px solid #0d0d0d;flex-shrink:0}
+.lb-tab{flex:1;padding:8px;font-size:9px;letter-spacing:1px;color:#444;cursor:pointer;text-align:center;border:none;background:none;font-family:inherit;border-bottom:2px solid transparent;transition:.15s}
+.lb-tab.on{color:var(--g);border-bottom-color:var(--g)}
+.lb-body{padding:10px;overflow-y:auto;flex-grow:1}
+.lb-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid #0d0d0d;border-radius:4px;margin-bottom:5px;cursor:pointer;transition:.15s}
+.lb-row:hover{border-color:#00ff4133;background:#091509}
+.lb-rank{font-size:10px;width:26px;text-align:center;color:var(--g);flex-shrink:0}
+.lb-name{flex-grow:1;font-size:10px;color:#888}
+.lb-bar{height:2px;background:#0d0d0d;border-radius:1px;margin-top:3px;overflow:hidden}
+.lb-bar-fill{height:100%;background:var(--g);border-radius:1px;transition:width .4s}
+.lb-stat{font-size:9px;color:#333;flex-shrink:0}
+.lb-empty{text-align:center;padding:40px 20px;font-size:10px;color:#222;letter-spacing:2px}
+
+/* SETTINGS */
+#settings{position:fixed;top:0;right:-360px;width:340px;height:100vh;background:rgba(4,4,4,.97);border-left:1px solid rgba(0,255,65,.12);z-index:500;display:flex;flex-direction:column;transition:right .25s cubic-bezier(.4,0,.2,1);backdrop-filter:blur(24px)}
+#settings.open{right:0}
+.sp-head{padding:16px 18px;border-bottom:1px solid #111;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.sp-head h3{margin:0;font-size:14px;letter-spacing:3px;color:var(--g)}
+.sp-close{background:none;border:none;color:#444;font-size:20px;cursor:pointer;line-height:1}
+.sp-close:hover{color:var(--g)}
+.sp-body{padding:16px 18px;overflow-y:auto;flex-grow:1;display:flex;flex-direction:column;gap:20px}
+.sp-section h4{font-size:11px;color:#555;letter-spacing:2px;margin:0 0 10px;font-weight:normal}
+.opt-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #0d0d0d}
+.opt-row:last-child{border-bottom:none}
+.opt-label{font-size:11px;color:#888}
+.opt-sub{font-size:9px;color:#333;margin-top:2px}
+.toggle{position:relative;width:36px;height:20px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.toggle-track{position:absolute;inset:0;background:#111;border:1px solid #2a2a2a;border-radius:10px;cursor:pointer;transition:.2s}
+.toggle input:checked+.toggle-track{background:#003b00;border-color:#00ff4166}
+.toggle-track::after{content:'';position:absolute;top:3px;left:3px;width:12px;height:12px;background:#333;border-radius:50%;transition:.2s}
+.toggle input:checked+.toggle-track::after{background:var(--g);left:19px}
+.preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+.preset{background:#0a0a0a;border:1px solid #1a1a1a;color:#666;padding:8px 10px;border-radius:4px;cursor:pointer;font-size:10px;font-family:inherit;transition:.15s;text-align:left;letter-spacing:.5px}
+.preset:hover{border-color:#00ff4133;color:#aaa}
+.preset.active{border-color:var(--g);color:var(--g);background:#091509}
+.radio-group{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.radio-opt{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid #1a1a1a;border-radius:4px;cursor:pointer;transition:.15s}
+.radio-opt:hover{border-color:#00ff4133}
+.radio-opt.active{border-color:var(--g);background:#09180a}
+.radio-opt input{display:none}
+.radio-dot{width:8px;height:8px;border-radius:50%;border:1px solid #444;flex-shrink:0;transition:.15s}
+.radio-opt.active .radio-dot{background:var(--g);border-color:var(--g)}
+.radio-label{font-size:11px;color:#666}
+.radio-opt.active .radio-label{color:var(--g)}
+.inp{background:#000;border:1px solid #1a1a1a;color:var(--g);padding:8px 11px;width:100%;outline:none;border-radius:4px;font-family:inherit;font-size:11px;transition:.15s;margin-top:4px}
+.inp:focus{border-color:#00ff4155}
+
+/* G@ME OVERLAY */
+#game-overlay{position:fixed;inset:0;background:#000;z-index:10000;display:none;flex-direction:column}
+#game-overlay.open{display:flex}
+#overlay-bar{display:flex;align-items:center;gap:10px;padding:6px 12px;background:#050505;border-bottom:1px solid #111;flex-shrink:0}
+#overlay-title{font-size:12px;color:#555;letter-spacing:1px;flex-grow:1}
+.ov-btn{background:none;border:1px solid #1a1a1a;color:#555;padding:5px 10px;border-radius:4px;cursor:pointer;font-family:inherit;font-size:10px;transition:.15s}
+.ov-btn:hover{border-color:#00ff4133;color:var(--g)}
+#game-frame{flex-grow:1;border:none;background:#000}
+
+/* REQUEST MODAL */
+#req-modal{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:8000;display:none;align-items:center;justify-content:center}
+#req-modal.open{display:flex}
+.req-card{background:#050505;border:1px solid rgba(0,255,65,.15);padding:28px;border-radius:8px;width:380px;max-width:92vw;animation:fup .2s ease both}
+.req-card h2{color:var(--g);margin:0 0 18px;font-size:16px;letter-spacing:2px}
+.req-inp{background:#000;border:1px solid #1e1e1e;color:var(--g);padding:10px 13px;width:100%;outline:none;border-radius:4px;font-family:inherit;font-size:12px;margin-bottom:10px;transition:.15s}
+.req-inp:focus{border-color:#00ff4155}
+.req-ta{resize:vertical;min-height:72px}
+.req-btn{background:var(--g);color:#000;border:none;padding:11px;width:100%;cursor:pointer;border-radius:4px;font-family:inherit;font-weight:bold;font-size:12px;letter-spacing:1px;transition:.15s}
+.req-btn:hover{opacity:.85}
+#req-status{font-size:10px;color:#444;text-align:center;margin-top:8px;letter-spacing:1px;min-height:16px}
+
+/* TOAST */
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(12px);background:#091509;border:1px solid rgba(0,255,65,.25);color:var(--g);padding:9px 18px;border-radius:5px;font-size:11px;letter-spacing:1px;z-index:99999;opacity:0;transition:all .25s;pointer-events:none}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@keyframes flash{0%,100%{border-color:#1a1a1a}50%{border-color:var(--g);box-shadow:0 0 20px #00ff4133}}
+
+@media(max-width:600px){
+  nav{padding:7px 10px;gap:7px}
+  .brand{font-size:15px}
+  #grid{grid-template-columns:repeat(2,1fr);gap:8px}
+  #grid-wrap{padding:10px}
+  #settings{width:100%;right:-100%}
+  #lb{width:100%;left:-100%}
+}
+</style>
+</head>
+<body>
+
+<!-- BOOT -->
+<div id="boot">
+  <h1>MONGLE_OS</h1>
+  <div id="bs">v10.1 — INITIALIZING</div>
+  <div id="bb"><div id="bf"></div></div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <nav>
+    <div class="brand">MONGLE_OS <em>v10.1</em></div>
+    <input id="search" type="text" placeholder="/ search g..." autocomplete="off">
+    <div class="nav-right">
+      <span class="dot"></span>
+      <span id="online-txt">-- online</span>
+      <span id="total-txt"></span>
+      <button class="nbtn" id="fav-btn" onclick="toggleFavFilter()">[ ] FAVS</button>
+      <button class="nbtn" onclick="pickRandom()">? RANDOM</button>
+      <button class="nbtn" onclick="toggleLb()">^ BOARD</button>
+      <button class="nbtn" onclick="openReq()">+ REQUEST</button>
+      <button class="nbtn" onclick="toggleSettings()">* SETTINGS</button>
+    </div>
+  </nav>
+
+  <!-- TAG BAR -->
+  <div id="tag-bar">
+    <span class="tag-chip on" onclick="setTag('all')">ALL</span>
+  </div>
+
+  <div id="grid-wrap">
+    <div id="grid"><div class="msg"><b>[ ]</b>LOADING g...</div></div>
+    <div id="sentinel"></div>
+  </div>
+</div>
+
+<!-- LEADERBOARD -->
+<div id="lb">
+  <div class="lb-head">
+    <h3>[ LEADERBOARD ]</h3>
+    <button class="lb-close" onclick="toggleLb()">✕</button>
+  </div>
+  <div class="lb-tabs">
+    <button class="lb-tab on" data-t="plays" onclick="setLbTab('plays')">MOST PLAYED</button>
+    <button class="lb-tab" data-t="favs" onclick="setLbTab('favs')">MOST FAVED</button>
+  </div>
+  <div class="lb-body" id="lb-body"><div class="lb-empty">loading...</div></div>
+</div>
+
+<!-- SETTINGS -->
+<div id="settings">
+  <div class="sp-head">
+    <h3>[ SETTINGS ]</h3>
+    <button class="sp-close" onclick="toggleSettings()">✕</button>
+  </div>
+  <div class="sp-body">
+    <div class="sp-section">
+      <h4>OPEN g@me AS</h4>
+      <div class="radio-group" id="open-mode-group">
+        <label class="radio-opt active" data-mode="tab">
+          <input type="radio" name="mode" value="tab" checked>
+          <div class="radio-dot"></div>
+          <span class="radio-label">New Tab (githack direct)</span>
+        </label>
+        <label class="radio-opt" data-mode="iframe">
+          <input type="radio" name="mode" value="iframe">
+          <div class="radio-dot"></div>
+          <span class="radio-label">In-site Iframe</span>
+        </label>
+        <label class="radio-opt" data-mode="about">
+          <input type="radio" name="mode" value="about">
+          <div class="radio-dot"></div>
+          <span class="radio-label">About:blank Cloak</span>
+        </label>
+        <label class="radio-opt" data-mode="cloudflare">
+          <input type="radio" name="mode" value="cloudflare">
+          <div class="radio-dot"></div>
+          <span class="radio-label">Cloudflare Proxy (stealth link)</span>
+        </label>
+        <label class="radio-opt" data-mode="external_proxy">
+          <input type="radio" name="mode" value="external_proxy">
+          <div class="radio-dot"></div>
+          <span class="radio-label">External Proxy (self-hosted page)</span>
+        </label>
+      </div>
+    </div>
+    <div class="sp-section">
+      <h4>TAB CLOAK</h4>
+      <div class="opt-row">
+        <div>
+          <div class="opt-label">Enable cloak</div>
+          <div class="opt-sub">Hides tab title + icon</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="cloak-toggle" onchange="applyCloak()">
+          <div class="toggle-track"></div>
+        </label>
+      </div>
+      <div id="cloak-opts" style="display:none;margin-top:10px">
+        <label style="font-size:9px;color:#333;letter-spacing:2px;display:block;margin-bottom:8px">PRESET</label>
+        <div class="preset-grid">
+          <button class="preset" onclick="setPreset('Google Docs','https://ssl.gstatic.com/docs/documents/images/kix-favicon7.ico')">Google Docs</button>
+          <button class="preset" onclick="setPreset('Khan Academy','https://cdn.kastatic.org/images/favicon.ico')">Khan Academy</button>
+          <button class="preset" onclick="setPreset('Google Classroom','https://ssl.gstatic.com/classroom/favicon.png')">Classroom</button>
+          <button class="preset" onclick="setPreset('Scratch','https://scratch.mit.edu/favicon.ico')">Scratch</button>
+        </div>
+        <label style="font-size:9px;color:#333;letter-spacing:2px;display:block;margin:12px 0 4px">CUSTOM TITLE</label>
+        <input id="cloak-title" class="inp" placeholder="Tab title..." oninput="applyCloak()">
+        <label style="font-size:9px;color:#333;letter-spacing:2px;display:block;margin:10px 0 4px">CUSTOM FAVICON URL</label>
+        <input id="cloak-fav" class="inp" placeholder="https://..." oninput="applyCloak()">
+      </div>
+    </div>
+    <div class="sp-section" id="cf-section" style="display:none;">
+      <h4>CLOUDFLARE PROXY</h4>
+      <div class="opt-sub" style="margin-bottom:8px;">Pre-configured worker for stealth temporary links</div>
+      <input id="cf-worker" class="inp" value="https://monglelink.whyhe246.workers.dev" onchange="saveCfWorker()">
+      <div class="opt-sub" style="margin-top:6px;" id="cf-status">Default worker active</div>
+      <div style="font-size:9px;color:#333;margin-top:8px;line-height:1.6;">
+        Generates a unique temp link for every g@me. Cloak title + favicon from TAB CLOAK above flow through automatically.
+      </div>
+    </div>
+    <div class="sp-section" id="ext-section" style="display:none;">
+      <h4>EXTERNAL PROXY</h4>
+      <div class="opt-sub" style="margin-bottom:8px;">Static proxy page you deploy on any website you control</div>
+      <input id="ext-proxy" class="inp" placeholder="https://yoursite.com/mongle-proxy.html" onchange="saveExtProxy()">
+      <div class="opt-sub" style="margin-top:6px;" id="ext-status">Not configured</div>
+      <div style="font-size:9px;color:#333;margin-top:8px;line-height:1.6;">
+        Host <b>mongle-proxy.html</b> anywhere, paste its URL here, then pick "External Proxy" as the open mode. Your tab cloak flows through automatically.
+      </div>
+    </div>
+    <div class="sp-section">
+      <h4>OPEN ANY URL</h4>
+      <div class="opt-sub" style="margin-bottom:8px;">Paste a link, or use the quick links below</div>
+      <input id="any-url" class="inp" placeholder="paste any URL..." onkeydown="if(event.key==='Enter')openAnyUrl()">
+      <button class="preset" style="width:100%;margin-top:6px;" onclick="openAnyUrl()">▶ OPEN WITH CURRENT MODE</button>
+      <select id="quickLinkSelect" class="inp" style="margin-top:6px;"></select>
+      <button class="preset" style="width:100%;margin-top:6px;" onclick="openSelectedQuickLink()">▶ OPEN SELECTED LINK</button>
+    </div>
+  </div>
+</div>
+
+<!-- g@me OVERLAY -->
+<div id="game-overlay">
+  <div id="overlay-bar">
+    <span id="overlay-title">—</span>
+    <button class="ov-btn" onclick="openNewTab()">new tab</button>
+    <button class="ov-btn" onclick="closeOverlay()">✕ close</button>
+  </div>
+  <iframe id="game-frame" allowfullscreen allow="fullscreen"></iframe>
+</div>
+
+<!-- REQUEST MODAL -->
+<div id="req-modal">
+  <div class="req-card">
+    <h2>[ REQUEST A G@ME ]</h2>
+    <input id="req-name" class="req-inp" placeholder="G@me name..." maxlength="80">
+    <textarea id="req-detail" class="req-inp req-ta" placeholder="Any details? (optional)" maxlength="300"></textarea>
+    <button class="req-btn" onclick="submitReq()">SUBMIT REQUEST</button>
+    <div id="req-status"></div>
+    <button onclick="closeReq()" style="background:none;border:none;color:#333;cursor:pointer;font-family:inherit;font-size:10px;width:100%;margin-top:6px;letter-spacing:1px">CANCEL</button>
+  </div>
+</div>
+
+<!-- LINK CHOOSER -->
+<div id="linkChooser" style="position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:8500;display:none;align-items:center;justify-content:center;">
+  <div style="background:#050505;border:1px solid rgba(0,255,65,.2);border-radius:8px;padding:24px;width:340px;max-width:92vw;">
+    <div style="font-size:14px;color:var(--g);letter-spacing:2px;margin-bottom:4px;">[ CHOOSE A LINK ]</div>
+    <div style="font-size:9px;color:#333;letter-spacing:1px;margin-bottom:14px;">pick which link to open</div>
+    <div id="linkChooserBtns" style="display:flex;flex-direction:column;gap:8px;"></div>
+    <button class="preset" style="width:100%;margin-top:10px;" onclick="closeLinkChooser()">✕ CANCEL</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- BOOT FAILSAFE: plain script, no imports — guarantees the boot screen ALWAYS closes -->
+<script>
+setTimeout(function () {
+  if (window.__mongleStarted) return;
+  var b = document.getElementById('boot'); if (b) b.style.display = 'none';
+  var a = document.getElementById('app');  if (a) a.style.display = 'flex';
+  var g = document.getElementById('grid');
+  if (g && !g.querySelector('.card')) {
+    g.innerHTML = '<div class="msg"><b>∅</b>CORE FAILED TO LOAD<br><span style="font-size:10px">allow gstatic.com + firebaseio.com + api.github.com, then reload</span></div>';
+  }
+}, 2600);
+</script>
+
+<script type="module">
+// ── FIREBASE: loaded via DYNAMIC import so a blocked CDN never kills the whole app ──
+let FB = null;   // { db, R } — R = the database.js module exports
+try {
+  const appMod = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js");
+  const dbMod  = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js");
+  const db = dbMod.getDatabase(appMod.initializeApp({
+      apiKey:"AIzaSyDGwa_5InnMoKUpVBT9x-nFzBUFHGf3C-Y",
+      authDomain:"mongle-af768.firebaseapp.com",
+      databaseURL:"https://mongle-af768-default-rtdb.firebaseio.com",
+      projectId:"mongle-af768",
+      storageBucket:"mongle-af768.firebasestorage.app",
+      messagingSenderId:"190331577532",
+      appId:"1:190331577532:web:e5f3ced220dac11ddb9cb9"
+  }));
+  FB = { db, R: dbMod };
+} catch (e) {
+  console.warn('[MONGLE] firebase unavailable — running offline', e);
+}
+
+// helpers that no-op safely when firebase is down
+function dbRef(p){ return FB ? FB.R.ref(FB.db, p) : null; }
+function dbOn(p, cb){ if (!FB) return; FB.R.onValue(dbRef(p), cb, e => console.error('db listen:', e)); }
+async function dbSet(p, v){ if (!FB) return; try { await FB.R.set(dbRef(p), v); } catch(e){ console.error(e); } }
+async function dbUpdate(p, v){ if (!FB) return; try { await FB.R.update(dbRef(p), v); } catch(e){ console.error(e); } }
+
+// ── STATE ──
+// Static quick links — always show as cards in the grid (to add more, copy a line below)
+const STATIC_LINKS = [
+    { name:'MONGLEOAD',  nameLow:'mongleoad',  url:'https://mongleoad.edgeone.dev',                            tags:['link'] },
+    { name:'PONGLELOAD', nameLow:'pongleload', url:'https://idonotknowhowtocodeyet.github.io/pongleload/',     tags:['link'] },
+];
+// quickLinks card shows a chooser instead of opening one link directly
+const QUICK_LINKS_CARD = { name:'QUICK LINKS', nameLow:'quick links', url:'', tags:['link'], chooser:true };
+let ALL = [QUICK_LINKS_CARD, ...STATIC_LINKS], shown = [], rendered = 0;
+const BATCH = 60;
+let currentUrl = '';
+let openMode = localStorage.getItem('openMode') || 'tab';
+
+// persistent user id
+let uid = localStorage.getItem('mgid');
+if (!uid) { uid = 'u_' + Math.random().toString(36).slice(2,14); localStorage.setItem('mgid', uid); }
+
+// stats
+let playStats = {}, favStats = {}, userFavs = {};
+let allTags = new Set();
+let activeTag = 'all';
+let favsOnly = false;
+let lbTab = 'plays';
+
+// offline favs fallback (localStorage)
+function loadOfflineFavs(){ try { userFavs = JSON.parse(localStorage.getItem('mg_favs_offline') || '{}') || {}; } catch(e){ userFavs = {}; } }
+function saveOfflineFavs(){ try { localStorage.setItem('mg_favs_offline', JSON.stringify(userFavs)); } catch(e){} }
+
+// ── AUTO-TAGGER ──
+const TAG_RULES = [
+    ['action',      /\b(action|fight|battle|combat|shoot|gun|blast|kill|hero|ninja|knight|warrior|sword|clash)\b/i],
+    ['shooting',    /\b(shoot|sniper|bullet|fps|blaster|turret|cannon)\b/i],
+    ['racing',      /\b(race|racing|car|drift|speed|moto|kart|drive|road|track|nascar|formula)\b/i],
+    ['puzzle',      /\b(puzzle|mahjong|tetris|match|block|slide|connect|sokoban|sudoku|flow|jigsaw|pipe)\b/i],
+    ['adventure',   /\b(adventure|quest|rpg|dungeon|explore|legend|journey|epic|saga|story)\b/i],
+    ['idle',        /\b(idle|clicker|tap|incremental|tycoon|miner|farm|harvest|cookie)\b/i],
+    ['multiplayer', /\b(multi|versus|pvp|co.op)\b/i],
+    ['sports',      /\b(sport|soccer|football|basketball|baseball|tennis|golf|swim|olympic|volleyball|hockey)\b/i],
+    ['strategy',    /\b(strategy|tower.defense|chess|defense|empire|craft|colony|sim)\b/i],
+    ['platformer',  /\b(jump|run|platform|mario|hop|dash|bounce|parkour|runner)\b/i],
+    ['classic',     /\b(classic|retro|arcade|pixel|pacman|snake|pong|atari)\b/i],
+    ['minecraft',   /\b(minecraft|craft|mine|creeper|steve)\b/i],
+    ['io',          /\.io\b|slither|agar|diep|krunker|mope|defly/i],
+    ['horror',      /\b(horror|scary|zombie|ghost|dead|creep|evil|demon|monster)\b/i],
+    ['card',        /\b(card|poker|solitaire|blackjack|uno|rummy)\b/i],
+];
+function autoTag(name) {
+    return TAG_RULES.filter(([,rx]) => rx.test(name)).map(([t]) => t);
+}
+function gkey(name) {
+    return name.toLowerCase().replace(/[^a-z0-9]/g,'_').replace(/_+/g,'_').slice(0,60);
+}
+
+// ── BOOT ──
+startApp();
+function startApp() {
+    window.__mongleStarted = true;
+    document.getElementById('boot').style.display = 'none';
+    document.getElementById('app').style.display  = 'flex';
+    if (FB) initPresence(); else document.getElementById('online-txt').textContent = 'offline';
+    loadFirebase();
+    loadg();
+    restoreSettings();
+}
+
+// ── PRESENCE ──
+function initPresence() {
+    const r = dbRef(`presence/${uid}`);
+    const ping = () => { try { FB.R.set(r, {on:true, t:Date.now()}); } catch(e){} };
+    ping();
+    try { FB.R.onDisconnect(r).remove(); } catch(e){}
+    dbOn('presence', snap => {
+        if (!snap) return;
+        let n=0, now=Date.now();
+        snap.forEach(c => { const v=c.val(); if(v?.on && now-(v.t||0)<300000) n++; });
+        document.getElementById('online-txt').textContent = n+' online';
+    });
+    setInterval(ping, 90000);
+}
+
+// ── FIREBASE STATS ──
+function loadFirebase() {
+    if (!FB) {
+        loadOfflineFavs();
+        applyFilters();
+        return;
+    }
+    dbOn('stats/plays', snap => {
+        playStats = (snap && snap.val()) || {};
+        drawLb();
+        refreshCards();
+    });
+
+    dbOn('stats/favs', snap => {
+        favStats = (snap && snap.val()) || {};
+        drawLb();
+    });
+
+    dbOn(`users/${uid}/favs`, snap => {
+        userFavs = (snap && snap.val()) || {};
+        applyFilters();
+    });
+}
+
+// ── LOAD g@mes (from uploaded file — untouched) ──
+async function loadg() {
+    try {
+        const r   = await fetch('https://api.github.com/repos/Idonotknowhowtocodeyet/mongles-pull-games/git/trees/main');
+        const d   = await r.json();
+        if (!d.tree) throw new Error(d.message || 'No tree in response');
+
+        const htmlFiles = d.tree.filter(f => f.type==='blob' && f.path.endsWith('.html') && !f.path.includes('/'));
+        if (!htmlFiles.length) throw new Error('No HTML files found in repo root');
+
+        ALL = [QUICK_LINKS_CARD, ...STATIC_LINKS, ...htmlFiles.map(f => {
+            const raw  = f.path.replace(/\.html?$/i,'');
+            const name = raw.replace(/[-_]+/g,' ').replace(/([a-z])([A-Z])/g,'$1 $2').replace(/\b\w/g,c=>c.toUpperCase()).trim();
+            const tags = autoTag(name);
+            return { name, nameLow:name.toLowerCase(), url:`https://raw.githack.com/Idonotknowhowtocodeyet/mongles-pull-games/main/${f.path}`, tags };
+        })].sort((a,b) => a.name.localeCompare(b.name));
+
+        ALL.forEach(g => g.tags.forEach(t => allTags.add(t)));
+        drawTagBar();
+        applyFilters();
+
+        dbOn('g', snap => {
+            if (!snap || !snap.exists()) return;
+            const extras = [];
+            snap.forEach(c => {
+                const g = c.val();
+                if (!g?.url || !g?.name) return;
+                let u = g.url.replace(/https?:\/\/poxel\.io\//i,'https://raw.githack.com/');
+                if (!ALL.find(x => x.url===u)) {
+                    const tags = autoTag(g.name);
+                    extras.push({name:g.name, nameLow:g.name.toLowerCase(), url:u, tags});
+                }
+            });
+            if (!extras.length) return;
+            ALL = [...ALL,...extras].sort((a,b)=>a.name.localeCompare(b.name));
+            extras.forEach(g => g.tags.forEach(t => allTags.add(t)));
+            drawTagBar();
+            applyFilters();
+        });
+
+    } catch(e) {
+        console.error(e);
+        drawTagBar();
+        applyFilters();
+        showToast('g@me list failed to load — showing quick links');
+    }
+}
+
+// ── FILTERS ──
+function applyFilters() {
+    const s = document.getElementById('search').value.toLowerCase().trim();
+    shown = ALL.filter(g => {
+        if (s && !g.nameLow.includes(s)) return false;
+        if (favsOnly && !userFavs[gkey(g.name)]) return false;
+        if (activeTag !== 'all' && !g.tags.includes(activeTag)) return false;
+        return true;
+    });
+    // favs float to top
+    const fk = new Set(Object.keys(userFavs));
+    shown.sort((a,b) => {
+        const af = fk.has(gkey(a.name)) ? 0 : 1;
+        const bf = fk.has(gkey(b.name)) ? 0 : 1;
+        return af !== bf ? af-bf : a.name.localeCompare(b.name);
+    });
+    document.getElementById('total-txt').textContent = shown.length+' g@mes';
+    resetGrid(); renderBatch();
+}
+
+// ── RENDER ──
+function resetGrid() { rendered=0; document.getElementById('grid').innerHTML=''; }
+
+function renderBatch() {
+    const grid = document.getElementById('grid');
+    const start = rendered, end = Math.min(start+BATCH, shown.length);
+    if (start >= shown.length) {
+        if (!shown.length) grid.innerHTML='<div class="msg"><b>∅</b>NO g@mes FOUND</div>';
+        return;
+    }
+    const fk = new Set(Object.keys(userFavs));
+    const frag = document.createDocumentFragment();
+    for (let i=start; i<end; i++) {
+        const g = shown[i];
+        const k = gkey(g.name);
+        const isFav = fk.has(k);
+        const plays = playStats[k]?.plays || 0;
+        const div = document.createElement('div');
+        div.className = 'card' + (isFav ? ' fav' : '');
+        div.dataset.name = g.name;
+        div.style.animationDelay = ((i-start)*12)+'ms';
+        div.innerHTML =
+            `<div class="cn">${esc(g.name)}</div>` +
+            (g.tags.length ? `<div class="card-tags">${g.tags.map(t=>`<span class="card-tag">${t}</span>`).join('')}</div>` : '') +
+            `<div class="card-bot">` +
+            `<span class="plays">${plays ? plays+'x' : ''}</span>` +
+            `<button class="hbtn${isFav?' on':''}" title="favourite">&#9829;</button>` +
+            `</div>`;
+        div.querySelector('.hbtn').addEventListener('click', e => { e.stopPropagation(); toggleFav(g.name); });
+        div.addEventListener('click', () => launch(g));
+        frag.appendChild(div);
+    }
+    grid.appendChild(frag);
+    rendered = end;
+}
+
+function refreshCards() {
+    const fk = new Set(Object.keys(userFavs));
+    document.querySelectorAll('.card').forEach(c => {
+        const k = gkey(c.dataset.name||'');
+        const isFav = fk.has(k);
+        c.classList.toggle('fav', isFav);
+        const h = c.querySelector('.hbtn');
+        if (h) h.classList.toggle('on', isFav);
+        const p = c.querySelector('.plays');
+        if (p) p.textContent = (playStats[k]?.plays||0) ? (playStats[k].plays+'x') : '';
+    });
+}
+
+// sentinel
+new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting && rendered < shown.length)
+        requestIdleCallback ? requestIdleCallback(renderBatch,{timeout:200}) : setTimeout(renderBatch,50);
+}, {rootMargin:'200px'}).observe(document.getElementById('sentinel'));
+
+// search
+let st;
+document.getElementById('search').addEventListener('input', () => { clearTimeout(st); st=setTimeout(applyFilters,80); });
+
+// ── RANDOM ──
+window.pickRandom = () => {
+    if (!shown.length) { showToast('no g@mes yet'); return; }
+    const g = shown[Math.floor(Math.random()*shown.length)];
+    showToast('>> '+g.name);
+    const cards = document.querySelectorAll('.card');
+    cards.forEach(c => {
+        if (c.dataset.name===g.name) {
+            c.scrollIntoView({behavior:'smooth',block:'center'});
+            c.style.animation='flash .5s ease 3';
+            setTimeout(()=>c.style.animation='',1800);
+        }
+    });
+    setTimeout(()=>launch(g), 700);
+};
+
+// ── FAVS ──
+async function toggleFav(name) {
+    const k = gkey(name);
+    const was = !!userFavs[k];
+    if (!FB) {
+        // offline mode — store favs locally so hearts still work
+        if (was) { delete userFavs[k]; showToast('removed from favs'); }
+        else { userFavs[k] = true; showToast('added to favs (offline)'); }
+        saveOfflineFavs();
+        applyFilters();
+        return;
+    }
+    try {
+        if (was) {
+            await dbSet(`users/${uid}/favs/${k}`, null);
+            await dbUpdate(`stats/favs/${k}`, {favs: FB.R.increment(-1), name});
+            showToast('removed from favs');
+        } else {
+            await dbSet(`users/${uid}/favs/${k}`, true);
+            await dbUpdate(`stats/favs/${k}`, {favs: FB.R.increment(1), name});
+            showToast('added to favs');
+        }
+    } catch(e) {
+        console.error('toggleFav:', e);
+        showToast('error: ' + e.message);
+    }
+}
+
+window.toggleFavFilter = () => {
+    favsOnly = !favsOnly;
+    document.getElementById('fav-btn').classList.toggle('on', favsOnly);
+    document.getElementById('fav-btn').textContent = favsOnly ? '[v] FAVS' : '[ ] FAVS';
+    applyFilters();
+};
+
+// ── TAGS ──
+function drawTagBar() {
+    const bar = document.getElementById('tag-bar');
+    const tags = [...allTags].sort();
+    bar.innerHTML =
+        `<span class="tag-chip${activeTag==='all'?' on':''}" onclick="setTag('all')">ALL</span>` +
+        tags.map(t=>`<span class="tag-chip${activeTag===t?' on':''}" onclick="setTag('${t}')">${t}</span>`).join('');
+}
+
+window.setTag = t => { activeTag=t; drawTagBar(); applyFilters(); };
+
+// ── LEADERBOARD ──
+window.toggleLb = () => document.getElementById('lb').classList.toggle('open');
+
+window.setLbTab = t => {
+    lbTab=t;
+    document.querySelectorAll('.lb-tab').forEach(el=>el.classList.toggle('on',el.dataset.t===t));
+    drawLb();
+};
+
+function drawLb() {
+    const body = document.getElementById('lb-body');
+    if (!FB) { body.innerHTML = '<div class="lb-empty">board needs connection</div>'; return; }
+    const data = lbTab==='plays' ? playStats : favStats;
+    const key  = lbTab==='plays' ? 'plays' : 'favs';
+    const rows = Object.entries(data)
+        .map(([k,v])=>({k, n:v[key]||0, stored:v.name||''}))
+        .filter(x=>x.n>0)
+        .sort((a,b)=>b.n-a.n)
+        .slice(0,20);
+    if (!rows.length) { body.innerHTML='<div class="lb-empty">no data yet — play some g@mes!</div>'; return; }
+    const max = rows[0].n;
+    body.innerHTML = rows.map((row,i)=>{
+        const g = ALL.find(x=>gkey(x.name)===row.k);
+        const name = g ? g.name : (row.stored || row.k.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()));
+        const pct = Math.round(row.n/max*100);
+        return `<div class="lb-row" onclick="lbLaunch('${row.k}')">
+            <div class="lb-rank">#${i+1}</div>
+            <div style="flex-grow:1">
+                <div class="lb-name">${esc(name)}</div>
+                <div class="lb-bar"><div class="lb-bar-fill" style="width:${pct}%"></div></div>
+            </div>
+            <div class="lb-stat">${row.n}</div>
+        </div>`;
+    }).join('');
+}
+
+window.lbLaunch = k => {
+    const g = ALL.find(x=>gkey(x.name)===k);
+    if (g) { document.getElementById('lb').classList.remove('open'); launch(g); }
+};
+
+// ── LAUNCH ──
+// IMPORTANT: everything below runs SYNCHRONOUSLY inside the click handler so
+// window.open() is never eaten by the popup blocker. Stats are recorded after.
+function launch(g) {
+    if (g.chooser) { openLinkChooser(); return; }
+    recordPlay(g);
+
+    if (openMode==='external_proxy') {
+        const base = getExtProxy();
+        if (!base) { showToast('set external proxy URL in settings'); return; }
+        const cT = localStorage.getItem('cloakTitle') || '';
+        const cF = localStorage.getItem('cloakFav') || '';
+        window.open(base + '?app=' + encodeURIComponent(g.url) + '&cloak=' + encodeURIComponent(cT) + '&favicon=' + encodeURIComponent(cF), '_blank');
+        return;
+    }
+    if (openMode==='cloudflare') {
+        const worker = getCfWorker();
+        const cloakTitle = localStorage.getItem('cloakTitle') || 'Google Classroom';
+        const cloakFav = localStorage.getItem('cloakFav') || 'https://classroom.google.com/favicon.ico';
+        const token = Math.random().toString(36).substring(2,10) + Date.now().toString(36);
+        const cfUrl = `${worker}/${token}?app=${encodeURIComponent(g.url)}&cloak=${encodeURIComponent(cloakTitle)}&favicon=${encodeURIComponent(cloakFav)}`;
+        window.open(cfUrl, '_blank');
+        return;
+    }
+    if (openMode==='iframe') openOverlay(g.url, g.name);
+    else if (openMode==='about') openAboutBlank(g.url);
+    else window.open(g.url,'_blank');
+}
+
+function recordPlay(g) {
+    if (!FB) return;
+    dbUpdate(`stats/plays/${gkey(g.name)}`, {plays: FB.R.increment(1), name: g.name});
+}
+
+function openOverlay(url,title) {
+    currentUrl=url;
+    document.getElementById('overlay-title').textContent=title;
+    document.getElementById('game-frame').src=url;
+    document.getElementById('game-overlay').classList.add('open');
+}
+function openAboutBlank(url) {
+    const w=window.open('about:blank','_blank');
+    if(!w){showToast('pop-up blocked — allow popups for this site');return;}
+    w.document.open();
+    w.document.write(`<!DOCTYPE html><html><head><style>*{margin:0;padding:0;overflow:hidden}</style></head><body><iframe src="${url}" style="width:100vw;height:100vh;border:none"></iframe></body></html>`);
+    w.document.close();
+}
+window.openNewTab=()=>window.open(currentUrl,'_blank');
+window.closeOverlay=()=>{
+    document.getElementById('game-overlay').classList.remove('open');
+    document.getElementById('game-frame').src='about:blank';
+    currentUrl='';
+};
+
+// ── SETTINGS ──
+window.toggleSettings=()=>document.getElementById('settings').classList.toggle('open');
+document.getElementById('open-mode-group').addEventListener('click',e=>{
+    const opt=e.target.closest('[data-mode]');
+    if(!opt)return;
+    openMode=opt.dataset.mode;
+    localStorage.setItem('openMode',openMode);
+    document.querySelectorAll('#open-mode-group .radio-opt').forEach(el=>el.classList.toggle('active',el.dataset.mode===openMode));
+    const cfSection = document.getElementById('cf-section');
+    if(cfSection) cfSection.style.display = openMode==='cloudflare' ? 'block' : 'none';
+    const extSection = document.getElementById('ext-section');
+    if(extSection) extSection.style.display = openMode==='external_proxy' ? 'block' : 'none';
+});
+window.applyCloak=()=>{
+    const en=document.getElementById('cloak-toggle').checked;
+    document.getElementById('cloak-opts').style.display=en?'block':'none';
+    if(en){
+        const t=document.getElementById('cloak-title').value||'Google Docs';
+        const f=document.getElementById('cloak-fav').value;
+        document.title=t;
+        if(f)document.getElementById('fav').href=f;
+        localStorage.setItem('cloak','1');
+        localStorage.setItem('cloakTitle',document.getElementById('cloak-title').value);
+        localStorage.setItem('cloakFav',f);
+    }else{
+        document.title='MONGLE_OS';
+        document.getElementById('fav').href='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Crect fill=\'%23000\' width=\'100\' height=\'100\'/%3E%3Ctext y=\'75\' x=\'50\' text-anchor=\'middle\' fill=\'%2300ff41\' font-family=\'monospace\' font-size=\'60\' font-weight=\'bold\'%3EM%3C/text%3E%3C/svg%3E';
+        localStorage.removeItem('cloak');
+    }
+};
+window.setPreset=(title,favUrl)=>{
+    document.getElementById('cloak-title').value=title;
+    document.getElementById('cloak-fav').value=favUrl;
+    document.querySelectorAll('.preset').forEach(b=>b.classList.remove('active'));
+    event.target.classList.add('active');
+    applyCloak();
+};
+function getCfWorker(){ return localStorage.getItem('mongle_cf_worker') || 'https://monglelink.whyhe246.workers.dev'; }
+function getExtProxy(){ return (localStorage.getItem('mongle_ext_proxy')||'').replace(/\/$/,''); }
+function saveExtProxy(){
+    const val = document.getElementById('ext-proxy').value.trim().replace(/\/$/,'');
+    if(val) localStorage.setItem('mongle_ext_proxy', val);
+    else localStorage.removeItem('mongle_ext_proxy');
+    updateExtStatus();
+}
+function updateExtStatus(){
+    const st=document.getElementById('ext-status'), inp=document.getElementById('ext-proxy');
+    const u=getExtProxy();
+    if(inp) inp.value=u;
+    if(st) st.textContent = u ? 'Proxy: '+u : 'Not configured';
+}
+function saveCfWorker(){
+    const val = document.getElementById('cf-worker').value.trim().replace(/\/$/, '');
+    if(val) localStorage.setItem('mongle_cf_worker', val);
+    else localStorage.removeItem('mongle_cf_worker');
+    updateCfStatus();
+}
+function updateCfStatus(){
+    const status = document.getElementById('cf-status');
+    const input = document.getElementById('cf-worker');
+    const worker = getCfWorker();
+    const isDefault = !localStorage.getItem('mongle_cf_worker');
+    if(input) input.value = worker;
+    if(status){
+        if(worker) status.textContent = 'Worker: ' + worker + (isDefault ? ' (default)' : ' (custom)');
+        else status.textContent = 'No worker configured';
+    }
+}
+function restoreSettings(){
+    document.querySelectorAll('#open-mode-group .radio-opt').forEach(el=>el.classList.toggle('active',el.dataset.mode===openMode));
+    if(localStorage.getItem('cloak')){
+        document.getElementById('cloak-toggle').checked=true;
+        document.getElementById('cloak-title').value=localStorage.getItem('cloakTitle')||'';
+        document.getElementById('cloak-fav').value=localStorage.getItem('cloakFav')||'';
+        applyCloak();
+    }
+    updateCfStatus();
+    const cfSection = document.getElementById('cf-section');
+    if(cfSection) cfSection.style.display = openMode==='cloudflare' ? 'block' : 'none';
+    const extSection = document.getElementById('ext-section');
+    if(extSection) extSection.style.display = openMode==='external_proxy' ? 'block' : 'none';
+    updateExtStatus();
+}
+
+// ── REQUEST ──
+window.openReq=()=>document.getElementById('req-modal').classList.add('open');
+window.closeReq=()=>{document.getElementById('req-modal').classList.remove('open');document.getElementById('req-status').textContent='';};
+window.submitReq=async()=>{
+    const name=document.getElementById('req-name').value.trim();
+    const detail=document.getElementById('req-detail').value.trim();
+    const status=document.getElementById('req-status');
+    if(!name){showToast('enter a g@me name');return;}
+    if(!FB){status.textContent='requests need connection';status.style.color='#ff4757';return;}
+    status.textContent='sending...';status.style.color='#555';
+    try{
+        await FB.R.push(dbRef('requests'),{g:name,details:detail||'—',t:Date.now()});
+        status.textContent='sent!';status.style.color='var(--g)';
+        document.getElementById('req-name').value='';
+        document.getElementById('req-detail').value='';
+        setTimeout(closeReq,1800);
+    }catch(e){status.textContent='error: '+e.message;status.style.color='#ff4757';}
+};
+document.getElementById('req-modal').addEventListener('click',e=>{if(e.target===document.getElementById('req-modal'))closeReq();});
+
+// ── OPEN ANY URL ──
+window.openAnyUrl = function(){
+    const el = document.getElementById('any-url');
+    let u = el ? el.value.trim() : '';
+    if (!u) { showToast('paste a URL first'); return; }
+    if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
+    launch({name: u, nameLow: u.toLowerCase(), url: u, tags: []});
+};
+window.fillAny = function(url){
+    const el = document.getElementById('any-url');
+    if (el) el.value = url;
+    launch({name: url, nameLow: url.toLowerCase(), url: url, tags: []});
+};
+
+// ── LINK CHOOSER (pick between your separate links) ──
+function populateQuickSelect(){
+    const s = document.getElementById('quickLinkSelect');
+    if (!s) return;
+    s.innerHTML = STATIC_LINKS.map((l,i)=>`<option value="${i}">${l.name} — ${l.url}</option>`).join('');
+}
+populateQuickSelect();
+
+window.openSelectedQuickLink = function(){
+    const s = document.getElementById('quickLinkSelect');
+    const l = STATIC_LINKS[+s.value];
+    if (l) launch({...l});
+};
+
+window.openLinkChooser = function(){
+    const box = document.getElementById('linkChooserBtns');
+    if (!box) return;
+    box.innerHTML = STATIC_LINKS.map((l,i) =>
+        `<button class="preset" style="width:100%;text-align:left;" onclick="pickLink(${i})">▶ ${l.name}<br><span style="color:#444;font-size:9px;">${l.url}</span></button>`
+    ).join('');
+    document.getElementById('linkChooser').style.display = 'flex';
+};
+window.pickLink = function(i){
+    closeLinkChooser();
+    launch({...STATIC_LINKS[i]});
+};
+window.closeLinkChooser = function(){
+    document.getElementById('linkChooser').style.display = 'none';
+};
+
+// ── TOAST ──
+window.showToast=msg=>{
+    const t=document.getElementById('toast');
+    t.textContent=msg;t.classList.add('show');
+    clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2800);
+};
+
+function esc(t){const d=document.createElement('div');d.textContent=String(t);return d.innerHTML;}
+</script>
+</body>
+</html>
